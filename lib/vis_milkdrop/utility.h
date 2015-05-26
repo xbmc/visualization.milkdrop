@@ -86,10 +86,11 @@ void    ExecutePidl(LPITEMIDLIST pidl, char *szPathAndFile, char *szWorkingDirec
 int     GetDesktopIconSize();
 */
 
-
-
-
-
-
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
 
 #endif
