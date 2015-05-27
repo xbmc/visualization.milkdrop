@@ -46,6 +46,7 @@ set(SOURCES dx11/CommonStates.cpp
 add_subdirectory(evallib)
 
 add_definitions(-D_WIN32_WINNT=0x0600 -DNTDDI_VERSION=0x06000000 -D_WINDOWS)
+remove_definitions(-D_USE_32BIT_TIME_T)
 add_library(vis_milkdrop STATIC ${SOURCES} ${SHADER_INCLUDES})
 
 target_link_libraries(vis_milkdrop evallib)

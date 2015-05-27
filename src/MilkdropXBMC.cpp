@@ -23,16 +23,16 @@
 #include "XmlDocument.h"
 #include <string>
 #include <direct.h>
+#include <d3d11.h>
 
 CPlugin* g_plugin=NULL;
 
 bool g_UserPackFolder;
+std::string g_presetsDir;
 
 int lastPresetIndx = 0;
 char lastPresetDir[1024] = "";
 bool lastLockedStatus = false;
-
-char* presetsPath = NULL;
 
 // Sets a new preset file or directory and make it active. Also recovers last state of the preset if it is the same as last time
 void SetPresetDir(const char *pack)
@@ -41,15 +41,15 @@ void SetPresetDir(const char *pack)
   if (len >= 4 && strcmp(pack + len - 4, ".zip") == 0)
   {
     // Zip file
-    strcpy(g_plugin->m_szPresetDir, presetsPath);
-    strcat(g_plugin->m_szPresetDir,  pack);
+    strcpy(g_plugin->m_szPresetDir, g_presetsDir.c_str());
+    strcat(g_plugin->m_szPresetDir, pack);
     strcat(g_plugin->m_szPresetDir, "/");
   }
   else if (len >= 4 && strcmp(pack + len - 4, ".rar") == 0)
   {
     // Rar file
-    strcpy(g_plugin->m_szPresetDir, presetsPath);
-    strcat(g_plugin->m_szPresetDir,  pack);
+    strcpy(g_plugin->m_szPresetDir, g_presetsDir.c_str());
+    strcat(g_plugin->m_szPresetDir, pack);
     strcat(g_plugin->m_szPresetDir, "/");
   }
   else
@@ -61,11 +61,14 @@ void SetPresetDir(const char *pack)
   {
     // If we have a valid last preset state AND the preset file(dir) is the same as last time
     g_plugin->UpdatePresetList();
-    g_plugin->m_bHoldPreset = lastLockedStatus;
-    g_plugin->m_nCurrentPreset = lastPresetIndx;
-    strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);
-    strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
-    g_plugin->LoadPreset(g_plugin->m_szCurrentPresetFile, g_plugin->m_fBlendTimeUser);
+    if (g_plugin->m_pPresetAddr)
+    {
+      g_plugin->m_bHoldPreset = lastLockedStatus;
+      g_plugin->m_nCurrentPreset = lastPresetIndx;
+      strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);
+      strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
+      g_plugin->LoadPreset(g_plugin->m_szCurrentPresetFile, g_plugin->m_fBlendTimeUser);
+    }
   }
   else
     // If it is the first run or a newly chosen preset pack we choose a random preset as first
@@ -81,6 +84,38 @@ void Preinit()
   }
 }
 
+void replaceAll(std::string& str, const std::string& from, const std::string& to) 
+{
+  if (from.empty())
+    return;
+  size_t start_pos = 0;
+  while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    str.replace(start_pos, from.length(), to);
+    start_pos += to.length(); 
+  }
+}
+
+void urlEscape(std::string& str)
+{
+  if (str.empty())
+    return;
+
+  // 'url encode';
+  replaceAll(str, "%",  "%25");
+  replaceAll(str, "\\", "%2F");
+  replaceAll(str, "\"", "%22");
+  replaceAll(str, ":",  "%3A");
+  replaceAll(str, "`",  "%60");
+  replaceAll(str, "&",  "%26");
+  replaceAll(str, "{",  "%7B");
+  replaceAll(str, "}",  "%7D");
+  replaceAll(str, "]",  "%5D");
+  replaceAll(str, "[",  "%5B");
+  replaceAll(str, "<",  "%3C");
+  replaceAll(str, ">",  "%3E");
+  replaceAll(str, "#",  "%23");
+}
+
 extern "C" ADDON_STATUS ADDON_Create(void* hdl, void* props)
 {
   if (!props)
@@ -89,7 +124,9 @@ extern "C" ADDON_STATUS ADDON_Create(void* hdl, void* props)
   VIS_PROPS* visprops = (VIS_PROPS*)props;
   _mkdir(visprops->profile);
 
-  strcpy(presetsPath, visprops->presets);
+  std::string presets = std::string(visprops->presets).append("\\presets\\");
+  urlEscape(presets);
+  g_presetsDir = "zip://" + presets;
 
   Preinit();
   if(!g_plugin || !g_plugin->PluginInitialize((ID3D11DeviceContext*)visprops->device, visprops->x, visprops->y, visprops->width, visprops->height, visprops->pixelRatio))
