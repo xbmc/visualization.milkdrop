@@ -37,6 +37,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cal_tab.h"
 #include "compiler.h"
 #include "eval.h"
+#include "CAL_TAB.C"
 
 #define INTCONST 1
 #define DBLCONST 2

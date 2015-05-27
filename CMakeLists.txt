@@ -16,7 +16,7 @@ add_definitions(-DHAS_DX -D_CRT_SECURE_NO_WARNINGS)
 
 add_subdirectory(lib/vis_milkdrop)
 
-set(DEPLIBS evallib vis_milkdrop)
+set(DEPLIBS vis_milkdrop)
 
 build_addon(visualization.milkdrop MILKDROP DEPLIBS)
 
