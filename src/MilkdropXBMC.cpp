@@ -19,7 +19,7 @@
  */
 
 #include "vis_milkdrop/Plugin.h"
-#include "kodi/xbmc_vis_dll.h"
+#include "xbmc_vis_dll.h"
 #include "XmlDocument.h"
 #include <string>
 #include <direct.h>
