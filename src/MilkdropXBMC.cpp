@@ -20,12 +20,14 @@
 
 #include "vis_milkdrop/Plugin.h"
 #include "xbmc_vis_dll.h"
+#include "libXBMC_addon.h"
 #include "XmlDocument.h"
 #include <string>
 #include <direct.h>
 #include <d3d11.h>
 
 CPlugin* g_plugin=NULL;
+ADDON::CHelper_libXBMC_addon* KODI = NULL;
 
 bool g_UserPackFolder;
 std::string g_presetsDir;
@@ -121,7 +123,15 @@ extern "C" ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!props)
     return ADDON_STATUS_UNKNOWN;
 
-  VIS_PROPS* visprops = (VIS_PROPS*)props;
+	KODI = new ADDON::CHelper_libXBMC_addon;
+	if (!KODI->RegisterMe(hdl))
+	{
+		delete KODI;
+		KODI = NULL;
+		return ADDON_STATUS_PERMANENT_FAILURE;
+	}
+	
+	VIS_PROPS* visprops = (VIS_PROPS*)props;
   _mkdir(visprops->profile);
 
   std::string presets = std::string(visprops->presets).append("\\presets\\");
@@ -147,6 +157,12 @@ extern "C" void ADDON_Stop()
     delete g_plugin;
     g_plugin = NULL;
   }
+
+	if (KODI)
+	{
+		delete KODI;
+		KODI = NULL;
+	}
 }
 
 unsigned char waves[2][512];

@@ -485,6 +485,11 @@ Order of Function Calls
 #include <assert.h>
 //#include "../XmlDocument.h"
 
+#include "libXBMC_addon.h"
+#include "kodi_vfs_types.h"
+
+extern ADDON::CHelper_libXBMC_addon* KODI;
+
 #define FRAND ((rand() % 7381)/7380.0f)
 #define strnicmp _strnicmp
 #define strcmpi  _strcmpi
@@ -4628,7 +4633,7 @@ void CPlugin::RandomizeBlendPattern()
         // radial blend
         float band = 0.02f + 0.14f*FRAND + 0.34f*FRAND;
         float inv_band = 1.0f/band;
-        float dir = (rand()%2)*2 - 1;
+        int dir = (rand()%2)*2 - 1;
 
         int nVert = 0;
 	    for (int y=0; y<=m_nGridY; y++)
@@ -4734,11 +4739,11 @@ void CPlugin::SeekToPreset(char cStartChar)
 
 void CPlugin::UpdatePresetList()
 {
-	struct _finddata_t c_file;
-	long hFile;
-	//HANDLE hFindFile;
+	VFSDirEntry* items = NULL;
+	unsigned int numItems = 0;
 
-	char szMask[512];
+	KODI->GetDirectory(m_szPresetDir, "", &items, &numItems);
+
 	char szPath[512];
 	char szLastPresetSelected[512];
 
@@ -4747,76 +4752,43 @@ void CPlugin::UpdatePresetList()
 	else
 		strcpy(szLastPresetSelected, "");
 
-	// make sure the path exists; if not, go to winamp plugins dir
-/*
-	if (GetFileAttributes(m_szPresetDir) == -1)
-	{
-		strcpy(m_szPresetDir, m_szWinampPluginsPath);
-		if (GetFileAttributes(m_szPresetDir) == -1)
-		{
-			strcpy(m_szPresetDir, "c:\\");
-		}
-	}
-*/
 	strcpy(szPath, m_szPresetDir);
 	int len = strlen(szPath);
 	if (len>0 && szPath[len-1] != '/') 
 	{
 		strcat(szPath, "/");
 	}
-	strcpy(szMask, szPath);
-	strcat(szMask, "*.*");
 
-
-	WIN32_FIND_DATA ffd;
-	ZeroMemory(&ffd, sizeof(ffd));
-
-    m_nRatingReadProgress = 0;
+	m_nRatingReadProgress = 0;
     
 	for (int i=0; i<2; i++)		// usually RETURNs at end of first loop
 	{
 		m_nPresets = 0;
 		m_nDirs    = 0;
 
-		// find first .MILK file
-		if( (hFile = _findfirst(szMask, &c_file )) != -1L )		// note: returns filename -without- path
-		//if( (hFindFile = FindFirstFile(szMask, &ffd )) != INVALID_HANDLE_VALUE )		// note: returns filename -without- path
+		if(numItems)
 		{
 			char *p = m_szpresets;
 			int  bytes_left = m_nSizeOfPresetList - 1;		// save space for extra null-termination of last string
-			
-			/*
-			len = strlen(ffd.cFileName);
-			bytes_left -= len+1;
-			strcpy(p, ffd.cFileName);
-			p += len+1;
-			m_nPresets++;
-			*/
-			//dumpmsg(ffd.cFileName);
 
-			// find the rest
-			//while (_findnext( hFile, &c_file ) == 0)
-
-			do
+			for (unsigned int curItem(0); curItem < numItems; ++curItem)
 			{
 				bool bSkip = false;
 
 				char szFilename[512];
-				strcpy(szFilename, c_file.name);
+				strcpy(szFilename, items[curItem].label);
 
-				/*if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				if (items[curItem].folder)
 				{
-				// skip "." directory
-				if (strcmp(ffd.cFileName, ".")==0)// || strlen(ffd.cFileName) < 1)
-				bSkip = true;
-				else
-				sprintf(szFilename, "*%s", ffd.cFileName);
+					// skip "." directory
+					if (strcmp(szFilename, ".")==0)
+						bSkip = true;
 				}
-				else*/
+				else
 				{
 					// skip normal files not ending in ".milk"
-					int len = strlen(c_file.name);
-					if (len < 5 || strcmpi(c_file.name + len - 5, ".milk") != 0)
+					int len = strlen(szFilename);
+					if (len < 5 || strcmpi(szFilename + len - 5, ".milk") != 0)
 						bSkip = true;					
 				}
 
@@ -4827,8 +4799,8 @@ void CPlugin::UpdatePresetList()
 					bytes_left -= len+1;
 
 					m_nPresets++;
-					/*if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
-					m_nDirs++;*/
+					if(items[curItem].folder)
+						++m_nDirs;
 
 					if (bytes_left >= 0)
 					{
@@ -4837,9 +4809,6 @@ void CPlugin::UpdatePresetList()
 					}
 				}
 			}
-			while(_findnext(hFile,&c_file) == 0);
-
-			_findclose( hFile );
 
 			if (bytes_left >= 0) 
 			{
@@ -4872,8 +4841,10 @@ void CPlugin::UpdatePresetList()
 							m_nPresetListCurPos = i; 
 				}
 
-                // call once, at least, to reallocate the ratings array:
+				// call once, at least, to reallocate the ratings array:
 				UpdatePresetRatings();
+
+				KODI->FreeDirectory(items, numItems);
 
 				// RETURN HERE - SUCCESS
 				// RETURN HERE - SUCCESS
@@ -4891,6 +4862,8 @@ void CPlugin::UpdatePresetList()
 			}
 		}
 	}
+
+	KODI->FreeDirectory(items, numItems);
 
 	// should never get here
 	sprintf(m_szUserMessage, "Unfathomable error getting preset file list!");
