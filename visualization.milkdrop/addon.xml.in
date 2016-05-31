@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="visualization.milkdrop"
-  version="1.5.0"
+  version="1.6.0"
   name="MilkDrop"
   provider-name="Team-Kodi">
   <extension
     point="xbmc.player.musicviz"
-    library_windx="visualization.milkdrop.dll"/>
+    library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="af">MilkDrop laat jou sweef deur die klankgolwe wat jy hoor</summary>
     <summary lang="ar">يحلق بك MilkDrop فوق الموجات الصوتية اللتي تسمع</summary>
@@ -111,6 +111,6 @@
     <description lang="vi">MilkDrop ban đầu là một "plug-in" trình diễn nhạc cho Winamp. Khi bạn nghe nhạc, MilkDrop sẽ làm bạn bay bổng trong âm thanh bạn đang nghe, và sử dụng bộ dò giai điệu để kích hoạt vô số những hiệu ứng ảo, tạo ra một cuộc hành trình âm thanh qua mắt thường</description>
     <description lang="zh">MilkDrop 是来自于 Winamp 音乐播放器的可视化效果插件。在你听音乐时，MilkDrop 通过节拍检测触发的无数迷幻的效果，带你与声波一起飞翔，给你带来丰富的音乐和视觉旅程。</description>
     <description lang="zh_TW">MilkDrop是來自於Winamp音樂播放器的視覺效果插件。在您在聽音樂時，MilkDrop通過節奏偵測觸發的無數夢幻的效果，帶您穿越聆聽中的音樂饗宴，也給您帶來豐富的聲音和視覺效果的奇幻旅程。</description>
-    <platform>windx</platform>
+    <platform>@PLATFORM@</platform>
   </extension>
 </addon>
