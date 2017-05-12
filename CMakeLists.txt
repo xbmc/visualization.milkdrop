@@ -17,6 +17,8 @@ include_directories(${PROJECT_SOURCE_DIR}/lib
 set(MILKDROP_SOURCES src/MilkdropXBMC.cpp
                      src/XmlDocument.cpp)
 
+set(MILKDROP_HEADERS src/XmlDocument.h)
+
 add_definitions(-DHAS_DX -D_CRT_SECURE_NO_WARNINGS)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/vis_milkdrop)
