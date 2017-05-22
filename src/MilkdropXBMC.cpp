@@ -131,7 +131,7 @@ extern "C" ADDON_STATUS ADDON_Create(void* hdl, void* props)
 		return ADDON_STATUS_PERMANENT_FAILURE;
 	}
 	
-	VIS_PROPS* visprops = (VIS_PROPS*)props;
+	AddonProps_Visualization* visprops = (AddonProps_Visualization*)props;
   _mkdir(visprops->profile);
 
   std::string presets = std::string(visprops->presets).append("\\presets\\");
@@ -149,7 +149,7 @@ extern "C" void Start(int iChannels, int iSamplesPerSec, int iBitsPerSample, con
 {}
 
 
-extern "C" void ADDON_Stop()
+extern "C" void Stop()
 {
   if(g_plugin)
   {
@@ -274,7 +274,7 @@ extern "C" bool IsLocked()
 //-----------------------------------------------------------------------------
 extern "C" void ADDON_Destroy()
 {
-  ADDON_Stop();
+  Stop();
 }
 
 //-- GetStatus ---------------------------------------------------------------
