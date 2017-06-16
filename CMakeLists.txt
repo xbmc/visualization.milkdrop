@@ -12,7 +12,8 @@ include_directories(${PROJECT_SOURCE_DIR}/lib
                     ${INCLUDES}
                     ${kodiplatform_INCLUDE_DIRS}
                     ${p8-platform_INCLUDE_DIRS}
-                    ${KODI_INCLUDE_DIR})
+                    ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways (becomes done in future)
+                    )
 
 set(MILKDROP_SOURCES src/MilkdropXBMC.cpp
                      src/XmlDocument.cpp)

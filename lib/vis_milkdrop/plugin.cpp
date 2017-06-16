@@ -485,10 +485,7 @@ Order of Function Calls
 #include <assert.h>
 //#include "../XmlDocument.h"
 
-#include "libXBMC_addon.h"
-#include "kodi_vfs_types.h"
-
-extern ADDON::CHelper_libXBMC_addon* KODI;
+#include <kodi/Filesystem.h>
 
 #define FRAND ((rand() % 7381)/7380.0f)
 #define strnicmp _strnicmp
@@ -4739,10 +4736,9 @@ void CPlugin::SeekToPreset(char cStartChar)
 
 void CPlugin::UpdatePresetList()
 {
-	VFSDirEntry* items = NULL;
-	unsigned int numItems = 0;
+	std::vector<kodi::vfs::CDirEntry> items;
 
-	KODI->GetDirectory(m_szPresetDir, "", &items, &numItems);
+	kodi::vfs::GetDirectory(m_szPresetDir, "", items);
 
 	char szPath[512];
 	char szLastPresetSelected[512];
@@ -4766,19 +4762,19 @@ void CPlugin::UpdatePresetList()
 		m_nPresets = 0;
 		m_nDirs    = 0;
 
-		if(numItems)
+		if(!items.empty())
 		{
 			char *p = m_szpresets;
 			int  bytes_left = m_nSizeOfPresetList - 1;		// save space for extra null-termination of last string
 
-			for (unsigned int curItem(0); curItem < numItems; ++curItem)
+			for (auto item : items)
 			{
 				bool bSkip = false;
 
 				char szFilename[512];
-				strcpy(szFilename, items[curItem].label);
+				strcpy(szFilename, item.Label().c_str());
 
-				if (items[curItem].folder)
+				if (item.IsFolder())
 				{
 					// skip "." directory
 					if (strcmp(szFilename, ".")==0)
@@ -4799,7 +4795,7 @@ void CPlugin::UpdatePresetList()
 					bytes_left -= len+1;
 
 					m_nPresets++;
-					if(items[curItem].folder)
+					if(item.IsFolder())
 						++m_nDirs;
 
 					if (bytes_left >= 0)
@@ -4844,8 +4840,6 @@ void CPlugin::UpdatePresetList()
 				// call once, at least, to reallocate the ratings array:
 				UpdatePresetRatings();
 
-				KODI->FreeDirectory(items, numItems);
-
 				// RETURN HERE - SUCCESS
 				// RETURN HERE - SUCCESS
 				// RETURN HERE - SUCCESS
@@ -4862,8 +4856,6 @@ void CPlugin::UpdatePresetList()
 			}
 		}
 	}
-
-	KODI->FreeDirectory(items, numItems);
 
 	// should never get here
 	sprintf(m_szUserMessage, "Unfathomable error getting preset file list!");
