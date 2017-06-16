@@ -19,7 +19,7 @@
  */
 
 #include "vis_milkdrop/Plugin.h"
-#include "xbmc_vis_dll.h"
+#include <kodi/addon-instance/Visualization.h>
 #include "libXBMC_addon.h"
 #include "XmlDocument.h"
 #include <string>
@@ -27,7 +27,6 @@
 #include <d3d11.h>
 
 CPlugin* g_plugin=NULL;
-ADDON::CHelper_libXBMC_addon* KODI = NULL;
 
 bool g_UserPackFolder;
 std::string g_presetsDir;
@@ -35,6 +34,28 @@ std::string g_presetsDir;
 int lastPresetIndx = 0;
 char lastPresetDir[1024] = "";
 bool lastLockedStatus = false;
+
+class CVisualizationMilkdrop
+  : public kodi::addon::CAddonBase
+  , public kodi::addon::CInstanceVisualization
+{
+public:
+  virtual ~CVisualizationMilkdrop();
+
+  virtual ADDON_STATUS Create() override;
+  virtual void Stop() override;
+  virtual void Render() override;
+  virtual bool GetPresets(std::vector<std::string>& presets) override;
+  virtual int GetActivePreset() override;
+  virtual bool IsLocked() override;
+  virtual bool PrevPreset() override;
+  virtual bool NextPreset() override;
+  virtual bool LoadPreset(int select) override;
+  virtual bool RandomPreset() override;
+  virtual bool LockPreset(bool lockUnlock) override;
+  virtual void AudioData(const float* audioData, int audioDataLength, float *freqData, int freqDataLength) override;
+  virtual ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue) override;
+};
 
 // Sets a new preset file or directory and make it active. Also recovers last state of the preset if it is the same as last time
 void SetPresetDir(const char *pack)
@@ -77,15 +98,6 @@ void SetPresetDir(const char *pack)
     g_plugin->LoadRandomPreset(g_plugin->m_fBlendTimeUser);
 }
 
-void Preinit()
-{
-  if(!g_plugin)
-  {
-    g_plugin = new CPlugin;
-    g_plugin->PluginPreInitialize(0, 0);
-  }
-}
-
 void replaceAll(std::string& str, const std::string& from, const std::string& to) 
 {
   if (from.empty())
@@ -118,51 +130,72 @@ void urlEscape(std::string& str)
   replaceAll(str, "#",  "%23");
 }
 
-extern "C" ADDON_STATUS ADDON_Create(void* hdl, void* props)
+//-- Create -------------------------------------------------------------------
+// Called on load. Addon should fully initalize or return error status
+// !!! Add-on master function !!!
+//-----------------------------------------------------------------------------
+ADDON_STATUS CVisualizationMilkdrop::Create()
 {
-  if (!props)
-    return ADDON_STATUS_UNKNOWN;
+  _mkdir(Profile().c_str());
 
-	KODI = new ADDON::CHelper_libXBMC_addon;
-	if (!KODI->RegisterMe(hdl))
-	{
-		delete KODI;
-		KODI = NULL;
-		return ADDON_STATUS_PERMANENT_FAILURE;
-	}
-	
-	AddonProps_Visualization* visprops = (AddonProps_Visualization*)props;
-  _mkdir(visprops->profile);
-
-  std::string presets = std::string(visprops->presets).append("\\presets\\");
+  std::string presets = Presets().append("\\presets\\");
   urlEscape(presets);
   g_presetsDir = "zip://" + presets;
 
-  Preinit();
-  if(!g_plugin || !g_plugin->PluginInitialize((ID3D11DeviceContext*)visprops->device, visprops->x, visprops->y, visprops->width, visprops->height, visprops->pixelRatio))
+  if (!g_plugin)
+  {
+    g_plugin = new CPlugin;
+    g_plugin->PluginPreInitialize(0, 0);
+  }
+
+  g_plugin->m_fBlendTimeAuto = kodi::GetSettingInt("Automatic Blend Time") + 1;
+  g_plugin->m_fTimeBetweenPresets = kodi::GetSettingInt("Time Between Presets") * 5 + 5;
+  g_plugin->m_fTimeBetweenPresetsRand = kodi::GetSettingInt("Additional Random Time") * 5 + 5;
+  g_plugin->m_bHardCutsDisabled = !kodi::GetSettingBoolean("Enable Hard Cuts");
+  g_plugin->m_fHardCutLoudnessThresh = kodi::GetSettingInt("Loudness Threshold For Hard Cuts") / 5.0f + 1.25f;
+  g_plugin->m_fHardCutHalflife = kodi::GetSettingInt("Average Time Between Hard Cuts") * 5 + 5;
+  g_plugin->m_max_fps_fs = kodi::GetSettingInt("Maximum Refresh Rate") * 5 + 20;
+  g_plugin->m_bAlways3D = kodi::GetSettingBoolean("Enable Stereo 3d");
+  lastLockedStatus = kodi::GetSettingBoolean("lastlockedstatus");
+  lastPresetIndx = kodi::GetSettingInt("lastpresetidx");
+  strcpy(lastPresetDir, kodi::GetSettingString("lastpresetfolder").c_str());
+  g_plugin->m_bSequentialPresetOrder = !kodi::GetSettingBoolean("Preset Shuffle Mode");
+  switch (kodi::GetSettingInt("Preset Pack"))
+  {
+    case 0:
+      g_UserPackFolder = false;
+      SetPresetDir("WA51-presets(265).zip");
+      break;
+
+    case 1:
+      g_UserPackFolder = false;
+      SetPresetDir("Winamp-presets(436).zip");
+      break;
+
+    case 2:
+      g_UserPackFolder = true;
+      SetPresetDir(kodi::GetSettingString("User Preset Folder").c_str());
+      break;
+  }
+
+  if (!g_plugin || !g_plugin->PluginInitialize(static_cast<ID3D11DeviceContext*>(Device()), X(), Y(), Width(), Height(), PixelRatio()))
     return ADDON_STATUS_UNKNOWN;
 
-  return ADDON_STATUS_NEED_SAVEDSETTINGS; // We need some settings to be saved later before we quit this plugin
+  return ADDON_STATUS_OK;
 }
 
-extern "C" void Start(int iChannels, int iSamplesPerSec, int iBitsPerSample, const char* szSongName)
-{}
-
-
-extern "C" void Stop()
+void CVisualizationMilkdrop::Stop()
 {
   if(g_plugin)
   {
+    kodi::SetSettingString("lastpresetfolder", g_plugin->m_szPresetDir);
+    kodi::SetSettingBoolean("lastlockedstatus", g_plugin->m_bHoldPreset);
+    kodi::SetSettingInt("lastpresetidx", g_plugin->m_nCurrentPreset);
+
     g_plugin->PluginQuit();
     delete g_plugin;
     g_plugin = NULL;
   }
-
-	if (KODI)
-	{
-		delete KODI;
-		KODI = NULL;
-	}
 }
 
 unsigned char waves[2][512];
@@ -170,7 +203,7 @@ unsigned char waves[2][512];
 //-- Audiodata ----------------------------------------------------------------
 // Called by XBMC to pass new audio data to the vis
 //-----------------------------------------------------------------------------
-extern "C" void AudioData(const float* pAudioData, int iAudioDataLength, float *pFreqData, int iFreqDataLength)
+void CVisualizationMilkdrop::AudioData(const float* pAudioData, int iAudioDataLength, float *pFreqData, int iFreqDataLength)
 {
 	int ipos=0;
 	while (ipos < 512)
@@ -185,53 +218,43 @@ extern "C" void AudioData(const float* pAudioData, int iAudioDataLength, float *
 	}
 }
 
-extern "C" void Render()
+void CVisualizationMilkdrop::Render()
 {
 	g_plugin->PluginRender(waves[0], waves[1]);
 
 }
 
-extern "C" void GetInfo(VIS_INFO* pInfo)
+bool CVisualizationMilkdrop::NextPreset()
 {
-	pInfo->bWantsFreq = false;
-	pInfo->iSyncDelay = 0;
+  g_plugin->LoadNextPreset(g_plugin->m_fBlendTimeUser);
+  return true;
 }
 
-//-- OnAction -----------------------------------------------------------------
-// Handle XBMC actions such as next preset, lock preset, album art changed etc
-//-----------------------------------------------------------------------------
-extern "C" bool OnAction(long flags, const void *param)
+bool CVisualizationMilkdrop::PrevPreset()
 {
-  bool ret = false;
-	if (flags == VIS_ACTION_NEXT_PRESET)
-	{
-		g_plugin->LoadNextPreset(g_plugin->m_fBlendTimeUser);
-		ret = true;
-	}
-	else if (flags == VIS_ACTION_PREV_PRESET)
-	{
-		g_plugin->LoadPreviousPreset(g_plugin->m_fBlendTimeUser);
-		ret = true;
-	}
-  else if (flags == VIS_ACTION_LOAD_PRESET && param)
-  {
-    g_plugin->m_nCurrentPreset = *(int *)param;
-	  strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);	// note: m_szPresetDir always ends with '\'
-	  strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
-    g_plugin->LoadPreset(g_plugin->m_szCurrentPresetFile, g_plugin->m_fBlendTimeUser);
-    ret = true;
-  }
-  else if (flags == VIS_ACTION_LOCK_PRESET)
-  {
-    g_plugin->m_bHoldPreset = !g_plugin->m_bHoldPreset;
-    ret = true;
-  }
-  else if (flags == VIS_ACTION_RANDOM_PRESET)
-  {
-    g_plugin->LoadRandomPreset(g_plugin->m_fBlendTimeUser);
-    ret = true;
-  }
-    return ret;
+  g_plugin->LoadPreviousPreset(g_plugin->m_fBlendTimeUser);
+  return true;
+}
+
+bool CVisualizationMilkdrop::LoadPreset(int select)
+{
+  g_plugin->m_nCurrentPreset = select;
+  strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);	// note: m_szPresetDir always ends with '\'
+  strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
+  g_plugin->LoadPreset(g_plugin->m_szCurrentPresetFile, g_plugin->m_fBlendTimeUser);
+  return true;
+}
+
+bool CVisualizationMilkdrop::LockPreset(bool lockUnlock)
+{
+  g_plugin->m_bHoldPreset = !g_plugin->m_bHoldPreset;
+  return true;
+}
+
+bool CVisualizationMilkdrop::RandomPreset()
+{
+  g_plugin->LoadRandomPreset(g_plugin->m_fBlendTimeUser);
+  return true;
 }
 
 void LoadSettings()
@@ -240,27 +263,29 @@ void LoadSettings()
 //-- GetPresets ---------------------------------------------------------------
 // Return a list of presets to XBMC for display
 //-----------------------------------------------------------------------------
-extern "C" unsigned int GetPresets(char ***presets)
+bool CVisualizationMilkdrop::GetPresets(std::vector<std::string>& presets)
 {
-  if (!presets || !g_plugin) return 0;
-  *presets = g_plugin->m_pPresetAddr;
-  return g_plugin->m_nPresets;
+  if (!g_plugin)
+    return false;
+  for (int i = 0; i < g_plugin->m_nPresets; ++i)
+    presets.push_back(g_plugin->m_pPresetAddr[i]);
+  return true;
 }
 
-//-- GetPreset ----------------------------------------------------------------
+//-- GetActivePreset ----------------------------------------------------------
 // Return the index of the current playing preset
 //-----------------------------------------------------------------------------
-extern "C" unsigned GetPreset()
+int CVisualizationMilkdrop::GetActivePreset()
 {
   if (g_plugin)
     return g_plugin->m_nCurrentPreset;
-  return 0;
+  return -1;
 }
 
 //-- IsLocked -----------------------------------------------------------------
 // Returns true if this add-on use settings
 //-----------------------------------------------------------------------------
-extern "C" bool IsLocked()
+bool CVisualizationMilkdrop::IsLocked()
 {
   if(g_plugin)
     return g_plugin->m_bHoldPreset;
@@ -272,96 +297,62 @@ extern "C" bool IsLocked()
 // Do everything before unload of this add-on
 // !!! Add-on master function !!!
 //-----------------------------------------------------------------------------
-extern "C" void ADDON_Destroy()
+CVisualizationMilkdrop::~CVisualizationMilkdrop()
 {
   Stop();
-}
-
-//-- GetStatus ---------------------------------------------------------------
-// Returns the current Status of this visualisation
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-extern "C" ADDON_STATUS ADDON_GetStatus()
-{
-  return ADDON_STATUS_OK;
 }
 
 //-- UpdateSetting ------------------------------------------------------------
 // Handle setting change request from XBMC
 //-----------------------------------------------------------------------------
-extern "C" ADDON_STATUS ADDON_SetSetting(const char* id, const void* value)
+ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue)
 {
-  if (!id || !value || !g_plugin)
+  if (settingName.empty() || settingValue.empty() || !g_plugin)
     return ADDON_STATUS_UNKNOWN;
 
-  if (strcmp(id, "###GetSavedSettings") == 0) // We have some settings to be saved in the settings.xml file
+  if (settingName == "Automatic Blend Time")
+    g_plugin->m_fBlendTimeAuto = (float)(settingValue.GetInt() + 1);
+  else if (settingName == "Time Between Presets")
+    g_plugin->m_fTimeBetweenPresets = (float)(settingValue.GetInt() * 5 + 5);
+  else if (settingName == "Additional Random Time")
+    g_plugin->m_fTimeBetweenPresetsRand = (float)(settingValue.GetInt() * 5 + 5);
+  else if (settingName == "Enable Hard Cuts")
+    g_plugin->m_bHardCutsDisabled = !settingValue.GetBoolean();
+  else if (settingName == "Loudness Threshold For Hard Cuts")
+    g_plugin->m_fHardCutLoudnessThresh = (float)(settingValue.GetInt() / 5.0f + 1.25f);
+  else if (settingName == "Average Time Between Hard Cuts")
+    g_plugin->m_fHardCutHalflife = (float)settingValue.GetInt() * 5 + 5;
+  else if (settingName == "Maximum Refresh Rate")
+    g_plugin->m_max_fps_fs = settingValue.GetInt() * 5 + 20;
+  else if (settingName == "Enable Stereo 3d")
+    g_plugin->m_bAlways3D = settingValue.GetBoolean();
+  else if (settingName == "lastlockedstatus")
+    lastLockedStatus = settingValue.GetBoolean();
+  else if (settingName == "lastpresetidx")
+    lastPresetIndx = settingValue.GetInt();
+  else if (settingName == "lastpresetfolder")
+    strcpy(lastPresetDir, settingValue.GetString().c_str());
+  else if (settingName == "Preset Shuffle Mode")
+    g_plugin->m_bSequentialPresetOrder = !settingValue.GetBoolean();
+  else if (settingName == "Preset Pack")
   {
-    if (strcmp((char*)value, "0") == 0)
-    {
-      strcpy((char*)id, "lastpresetfolder");
-      strcpy((char*)value, g_plugin->m_szPresetDir);
-    }
-    if (strcmp((char*)value, "1") == 0)
-    {
-      strcpy((char*)id, "lastlockedstatus");
-      strcpy((char*)value, (g_plugin->m_bHoldPreset ? "true" : "false"));
-    }
-    if (strcmp((char*)value, "2") == 0)
-    {
-      strcpy((char*)id, "lastpresetidx");
-      sprintf ((char*)value, "%i", g_plugin->m_nCurrentPreset);
-    }
-    if (strcmp((char*)value, "3") == 0)
-    {
-      strcpy((char*)id, "###End");
-    }
-    return ADDON_STATUS_OK;
-  }
-  // It is now time to set the settings got from xbmc
-  if (strcmp(id, "Use Preset") == 0)
-    OnAction(34, &value);
-  else if (strcmp(id, "Automatic Blend Time") == 0)
-    g_plugin->m_fBlendTimeAuto = (float)(*(int*)value + 1);
-  else if (strcmp(id, "Time Between Presets") == 0)
-    g_plugin->m_fTimeBetweenPresets = (float)(*(int*)value*5 + 5);
-  else if (strcmp(id, "Additional Random Time") == 0)
-    g_plugin->m_fTimeBetweenPresetsRand = (float)(*(int*)value*5 + 5);
-  else if (strcmp(id, "Enable Hard Cuts") == 0)
-    g_plugin->m_bHardCutsDisabled = *(bool*)value == false;
-  else if (strcmp(id, "Loudness Threshold For Hard Cuts") == 0)
-    g_plugin->m_fHardCutLoudnessThresh = (float)(*(int*)value)/5.0f + 1.25f;
-  else if (strcmp(id, "Average Time Between Hard Cuts") == 0)
-    g_plugin->m_fHardCutHalflife = (float)*(int*)value*5 + 5;
-  else if (strcmp(id, "Maximum Refresh Rate") == 0)
-    g_plugin->m_max_fps_fs = *(int*)value*5 + 20;
-  else if (strcmp(id, "Enable Stereo 3d") == 0)
-    g_plugin->m_bAlways3D = *(bool*)value;
-  else if (strcmp(id, "lastlockedstatus") == 0)
-    lastLockedStatus = *(bool*)value;
-  else if (strcmp(id, "lastpresetidx") == 0)
-    lastPresetIndx = *(int*)value;
-  else if (strcmp(id, "lastpresetfolder") == 0)
-    strcpy(lastPresetDir, (char*)value);
-  else if (strcmp(id, "Preset Shuffle Mode") == 0)
-    g_plugin->m_bSequentialPresetOrder = !*(bool*)value;
-  else if (strcmp(id, "Preset Pack") == 0)
-  {
-    if (*(int*)value == 0)
+    if (settingValue.GetInt() == 0)
       {
       g_UserPackFolder = false;;
       SetPresetDir ("WA51-presets(265).zip");
       }
-    else if (*(int*)value == 1)
+    else if (settingValue.GetInt() == 1)
     {
       g_UserPackFolder = false;
       SetPresetDir ("Winamp-presets(436).zip");
     }
-    else if (*(int*)value == 2)
+    else if (settingValue.GetInt() == 2)
       g_UserPackFolder = true;
   }
-  else if (strcmp(id, "User Preset Folder") ==0 )
+  else if (settingName == "User Preset Folder")
   {
-    if (g_UserPackFolder) SetPresetDir ((char*)value);
+    if (g_UserPackFolder)
+      SetPresetDir(settingValue.GetString().c_str());
   }
   else
     return ADDON_STATUS_UNKNOWN;
@@ -369,10 +360,4 @@ extern "C" ADDON_STATUS ADDON_SetSetting(const char* id, const void* value)
   return ADDON_STATUS_OK;
 }
 
-//-- GetSubModules ------------------------------------------------------------
-// Return any sub modules supported by this vis
-//-----------------------------------------------------------------------------
-extern "C" unsigned int GetSubModules(char ***names)
-{
-  return 0; // this vis supports 0 sub modules
-}
+ADDONCREATOR(CVisualizationMilkdrop) // Don't touch this!

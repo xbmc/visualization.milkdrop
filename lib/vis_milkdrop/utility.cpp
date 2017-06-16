@@ -34,9 +34,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <windows.h>
 //#include <xtl.h>
 #include <d3d9.h>
-#include "libXBMC_addon.h"
 
-extern ADDON::CHelper_libXBMC_addon* KODI;
+#include <kodi/Filesystem.h>
 
 float PowCosineInterp(float x, float pow)
 {
@@ -346,7 +345,7 @@ void GetFromCache(char *cache, char *key, char *szDefault, char *buffer, int buf
 
 void InternalGetPrivateProfileSection(char *szSectionName, char *buffer, int size, char *szIniFile)
 {
-	void* handle;
+	kodi::vfs::CFile handle;
 	int fileSize;
 	char tempSectionName[256];
 	int strIndex;
@@ -356,17 +355,15 @@ void InternalGetPrivateProfileSection(char *szSectionName, char *buffer, int siz
 
 	validIni = false;
 
-	handle = KODI->OpenFile(szIniFile, 0);
-	
-	if (handle == 0)
+	if (!handle.OpenFile(szIniFile))
 	{
 		return;
 	}
 
-	fileSize = KODI->GetFileLength(handle);
+	fileSize = handle.GetLength();
 	fileData = new char[fileSize];
-	KODI->ReadFile(handle, fileData, fileSize);
-	KODI->CloseFile(handle);
+	handle.Read(fileData, fileSize);
+	handle.Close();
 
 	filePtr = fileData;
 
