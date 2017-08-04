@@ -325,7 +325,7 @@ public:
 
 	td_supertext m_supertext;	// **contains info about current Song Title or Custom Message.**
 
-    IDirect3DTexture9 *m_tracer_tex;
+    //IDirect3DTexture9 *m_tracer_tex;
 
     //====[ 2. methods added: ]=====================================================================================
         

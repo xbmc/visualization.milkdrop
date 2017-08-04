@@ -622,9 +622,9 @@ void CPlugin::OverrideDefaults()
     // m_fontinfo[1].bBold     = 0;
     // m_fontinfo[1].bItalic   = 1;
 
-    m_disp_mode_fs.Width    = 1024;             // normally 640
-    m_disp_mode_fs.Height   = 768;              // normally 480
-    m_disp_mode_fs.Format   = D3DFMT_X8R8G8B8;  // use either D3DFMT_X8R8G8B8 or D3DFMT_R5G6B5.  The former will match to any 32-bit color format available, and the latter will match to any 16-bit color available, if that exact format can't be found.
+    //m_disp_mode_fs.Width    = 1024;             // normally 640
+    //m_disp_mode_fs.Height   = 768;              // normally 480
+    //m_disp_mode_fs.Format   = D3DFMT_X8R8G8B8;  // use either D3DFMT_X8R8G8B8 or D3DFMT_R5G6B5.  The former will match to any 32-bit color format available, and the latter will match to any 16-bit color available, if that exact format can't be found.
     // m_disp_mode_fs.RefreshRate = 60;
 }
 
@@ -1240,6 +1240,7 @@ int CPlugin::AllocateMyDX8Stuff()
             char buf[2048];
 		    sprintf(buf, "Init: -WARNING-: low memory; ideal auto texture size would be %d, but it had to be lowered to %d!", nOrigTexSize, m_nTexSize);
 		    dumpmsg(buf);
+#if 0
 		    if (!m_bWarningsDisabled)
 		    {
 			    sprintf(buf, "WARNING: low video memory; auto texture had to be reduced\rfrom %dx%d to %dx%d.\r\rThe image may look chunky or blocky.\r", nOrigTexSize, nOrigTexSize, m_nTexSize, m_nTexSize);
@@ -1260,6 +1261,7 @@ int CPlugin::AllocateMyDX8Stuff()
 				dumpmsg(buf);
 //			    MessageBox(GetPluginWindow(), buf, "WARNING", MB_OK|MB_SETFOREGROUND|MB_TOPMOST );
 		    }
+#endif
 	    }
     }
 
@@ -4691,9 +4693,9 @@ void CPlugin::GenPlasma(int x0, int x1, int y0, int y1, float dt)
 
 void CPlugin::LoadPreset(char *szPresetFilename, float fBlendTime)
 {
-	OutputDebugString("Milkdrop: Loading preset ");
-	OutputDebugString(szPresetFilename);
-	OutputDebugString("\n");
+	//OutputDebugString("Milkdrop: Loading preset ");
+	//OutputDebugString(szPresetFilename);
+	//OutputDebugString("\n");
 
 
 	if (szPresetFilename != m_szCurrentPresetFile)
@@ -5156,7 +5158,7 @@ void CPlugin::DeletePresetFile(char *szDelFile)
 {
 	// NOTE: this function additionally assumes that m_nPresetListCurPos indicates 
 	//		 the slot that the to-be-deleted preset occupies!
-
+#if 0
 	// delete file
 	if (!DeleteFile(szDelFile))
 	{
@@ -5181,13 +5183,14 @@ void CPlugin::DeletePresetFile(char *szDelFile)
 
 		UpdatePresetList();
 	}
+#endif
 }
 
 void CPlugin::RenamePresetFile(char *szOldFile, char *szNewFile)
 {
 	// NOTE: this function additionally assumes that m_nPresetListCurPos indicates 
 	//		 the slot that the to-be-renamed preset occupies!
-
+#if 0
 	if (GetFileAttributes(szNewFile) != -1)		// check if file already exists
 	{
 		// error
@@ -5229,6 +5232,7 @@ void CPlugin::RenamePresetFile(char *szOldFile, char *szNewFile)
 		m_UI_mode = UI_LOAD;
 		m_waitstring.bActive = false;
 	}
+#endif
 }
 
 

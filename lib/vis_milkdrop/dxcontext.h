@@ -45,8 +45,8 @@ typedef struct
     int  nbackbuf;
     int  allow_page_tearing;
     GUID adapter_guid;
-    D3DDISPLAYMODE display_mode;    // ONLY VALID FOR FULLSCREEN MODE.
-    D3DMULTISAMPLE_TYPE multisamp;
+    //D3DDISPLAYMODE display_mode;    // ONLY VALID FOR FULLSCREEN MODE.
+    //D3DMULTISAMPLE_TYPE multisamp;
     HWND parent_window;
     int m_dualhead_horz; // 0 = span both, 1 = left only, 2 = right only
     int m_dualhead_vert; // 0 = span both, 1 = top only, 2 = bottom only
@@ -70,7 +70,7 @@ class DXContext
         void OnTrulyExiting() { m_truly_exiting = 1; }
         void UpdateMonitorWorkRect();
         int  GetBitDepth() { return m_bpp;     };
-        inline D3DFORMAT GetZFormat() { return m_zFormat; };
+        //inline D3DFORMAT GetZFormat() { return m_zFormat; };
         char* GetDriver() { return m_szDriver; };
         char* GetDesc()   { return m_szDesc; };
         void SaveWindow();
@@ -91,14 +91,14 @@ class DXContext
         RECT m_monitor_work_rect_orig; // original work rect; does not account for pseudo-multimon modes like 2048x768
         DXCONTEXT_PARAMS       m_current_mode;
         DX11Context*           m_lpDevice;
-        D3DPRESENT_PARAMETERS  m_d3dpp;
+        //D3DPRESENT_PARAMETERS  m_d3dpp;
         //LPDIRECT3D9            m_lpD3D;
-        D3DCAPS9               m_caps;
+        //D3DCAPS9               m_caps;
 
     protected:
-        D3DMULTISAMPLE_TYPE    m_multisamp;
-        D3DFORMAT              m_zFormat;
-        D3DFORMAT              m_orig_windowed_mode_format[MAX_DXC_ADAPTERS];
+        //D3DMULTISAMPLE_TYPE    m_multisamp;
+        //D3DFORMAT              m_zFormat;
+        //D3DFORMAT              m_orig_windowed_mode_format[MAX_DXC_ADAPTERS];
         HMODULE m_hmod_d3d8;
         int  m_ordinal_adapter;
         HWND m_hwnd;
@@ -120,9 +120,9 @@ class DXContext
 
         void WriteSafeWindowPos();
         int GetWindowedModeAutoSize(int iteration);
-        BOOL TestDepth(int ordinal_adapter, D3DFORMAT fmt);
-        BOOL TestFormat(int ordinal_adapter, D3DFORMAT fmt);
-        int  CheckAndCorrectFullscreenDispMode(int ordinal_adapter, D3DDISPLAYMODE *pdm);
+        //BOOL TestDepth(int ordinal_adapter, D3DFORMAT fmt);
+        //BOOL TestFormat(int ordinal_adapter, D3DFORMAT fmt);
+        //int  CheckAndCorrectFullscreenDispMode(int ordinal_adapter, D3DDISPLAYMODE *pdm);
         void SetViewport();
         void MinimizeWinamp(HMONITOR hPluginMonitor);
         BOOL Internal_Init(DXCONTEXT_PARAMS *pParams, BOOL bFirstInit);

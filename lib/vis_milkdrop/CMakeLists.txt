@@ -45,7 +45,11 @@ set(SOURCES dx11/CommonStates.cpp
 
 add_subdirectory(evallib)
 
-add_definitions(-D_WIN32_WINNT=0x0600 -DNTDDI_VERSION=0x06000000 -D_WINDOWS)
+if(CORE_SYSTEM_NAME STREQUAL windowsstore)
+  add_definitions(-D_WIN32_WINNT=0x0A00 -D_WINDOWS)
+else()
+  add_definitions(-D_WIN32_WINNT=0x0600 -D_WINDOWS)
+endif()
 remove_definitions(-D_USE_32BIT_TIME_T)
 add_library(vis_milkdrop STATIC ${SOURCES} ${SHADER_INCLUDES})
 

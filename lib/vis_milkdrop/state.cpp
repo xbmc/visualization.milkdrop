@@ -1440,7 +1440,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
     int n2 = 3 + MAX_CUSTOM_WAVES*3 + MAX_CUSTOM_SHAPES*2; 
 	for (int n=0; n<n2; n++)
 	{
-		char *pOrig;
+		char *pOrig = nullptr;
 		switch(n)
 		{
 		case 0: pOrig = m_szPerFrameExpr; break;
