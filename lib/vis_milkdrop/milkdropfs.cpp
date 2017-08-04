@@ -40,10 +40,17 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include <d3dcaps.h>
 #include <assert.h>
 #include <math.h>
+#include "dx11/DirectXHelpers.h"
 //#include <shellapi.h>
 
 #define COLOR_NORM(x) (((int)(x*255)&0xFF) / 255.0f)
-
+#ifndef D3DCOLOR_ARGB
+#define D3DCOLOR_ARGB(a,r,g,b) \
+    ((DWORD)((((a)&0xff)<<24)|(((r)&0xff)<<16)|(((g)&0xff)<<8)|((b)&0xff)))
+#endif
+#ifndef D3DCOLOR_RGBA
+#define D3DCOLOR_RGBA(r,g,b,a) D3DCOLOR_ARGB(a,r,g,b)
+#endif
 #define D3DCOLOR_RGBA_01(r,g,b,a) D3DCOLOR_RGBA(((int)(r*255)),((int)(g*255)),((int)(b*255)),((int)(a*255)))
 #define FRAND ((rand() % 7381)/7380.0f)
 //#define D3D_OVERLOADS
@@ -1415,7 +1422,7 @@ void CPlugin::WarpedBlitFromVS0ToVS1()
     }
   */
 
-	D3DCOLOR cDecay = D3DCOLOR_RGBA_01(fDecay,fDecay,fDecay,1);
+  DWORD cDecay = D3DCOLOR_RGBA_01(fDecay,fDecay,fDecay,1);
 	fDecay = COLOR_NORM(fDecay);
 
 
@@ -3204,11 +3211,11 @@ void CPlugin::ShowToUser(int bRedraw)
 	SPRITEVERTEX v3[4];
 	ZeroMemory(v3, sizeof(SPRITEVERTEX)*4);
 
-  D3DRECT rect;
-  rect.x1 = m_posX;
-  rect.x2 = m_posX + GetWidth();
-  rect.y1 = m_posY;
-  rect.y2 = m_posY + GetHeight();
+  //DRECT rect;
+  //rect.x1 = m_posX;
+  //rect.x2 = m_posX + GetWidth();
+  //rect.y1 = m_posY;
+  //rect.y2 = m_posY + GetHeight();
 
   // WISO: lpDevice->SetScissors(1, false, &rect);
 

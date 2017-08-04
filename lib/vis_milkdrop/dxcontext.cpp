@@ -73,10 +73,10 @@ DXContext::DXContext(ID3D11Device* device, ID3D11DeviceContext* context, char* s
     //HRESULT state = device->GetDirect3D(&m_lpD3D);
     m_lpDevice = new DX11Context(device, context);
     m_hmod_d3d8 = NULL;
-    m_zFormat = D3DFMT_UNKNOWN;
-    for (int i=0; i<MAX_DXC_ADAPTERS; i++)
-        m_orig_windowed_mode_format[i] = D3DFMT_UNKNOWN;
-    m_ordinal_adapter = D3DADAPTER_DEFAULT;
+    //m_zFormat = D3DFMT_UNKNOWN;
+    //for (int i=0; i<MAX_DXC_ADAPTERS; i++)
+    //    m_orig_windowed_mode_format[i] = D3DFMT_UNKNOWN;
+    //m_ordinal_adapter = D3DADAPTER_DEFAULT;
     m_ignore_wm_destroy = 0;
 //    m_hwnd_winamp = hWndWinamp;
 //    m_minimize_winamp = minimize_winamp;
@@ -185,13 +185,12 @@ void DXContext::Internal_CleanUp()
 	*/
 }
 
+#if 0
 BOOL DXContext::TestFormat(int ordinal_adapter, D3DFORMAT fmt)
 {
-#if 0
     if (D3D_OK==m_lpD3D->CheckDeviceType(ordinal_adapter,D3DDEVTYPE_HAL,fmt,fmt,FALSE))
         return TRUE;
     return FALSE;
-#endif
 	return true;
 }
 
@@ -341,7 +340,8 @@ int DXContext::CheckAndCorrectFullscreenDispMode(int ordinal_adapter, D3DDISPLAY
 #endif
 	return 0;
 }
- 
+#endif
+
 BOOL CALLBACK MyMonitorEnumProc(
   HMONITOR hMonitor,  // handle to display monitor
   HDC hdcMonitor,     // handle to monitor DC
@@ -1288,6 +1288,7 @@ BOOL DXContext::OnUserResizeWindow(RECT *new_window_rect, RECT *new_client_rect)
 
 void DXContext::SetViewport()
 {
+#if 0
     D3DVIEWPORT9 v;
     v.X = 0;
     v.Y = 0;
@@ -1296,6 +1297,7 @@ void DXContext::SetViewport()
     v.MinZ = 0.0f;
     v.MaxZ = 1.0f;
 //    m_lpDevice->SetViewport(&v);
+#endif
 }
 
 void DXContext::MinimizeWinamp(HMONITOR hPluginMonitor)

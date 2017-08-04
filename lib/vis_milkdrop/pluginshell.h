@@ -96,9 +96,9 @@ protected:
     int          GetHeight();            // returns height of plugin window interior, in pixels.
     int          GetBitDepth();          // returns 8, 16, 24 (rare), or 32
     DX11Context* GetDevice();            // returns a pointer to the DirectX 8 Device.  NOT persistent; can change!
-    D3DCAPS9*    GetCaps();              // returns a pointer to the D3DCAPS8 structer for the device.  NOT persistent; can change.
-    D3DFORMAT    GetBackBufFormat();     // returns the pixelformat of the back buffer (probably D3DFMT_R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_A4R4G4B4, D3DFMT_R3G3B2, D3DFMT_A8R3G3B2, D3DFMT_X4R4G4B4, or D3DFMT_UNKNOWN)
-    D3DFORMAT    GetBackBufZFormat();    // returns the pixelformat of the back buffer's Z buffer (probably D3DFMT_D16_LOCKABLE, D3DFMT_D32, D3DFMT_D15S1, D3DFMT_D24S8, D3DFMT_D16, D3DFMT_D24X8, D3DFMT_D24X4S4, or D3DFMT_UNKNOWN)
+    //D3DCAPS9*    GetCaps();              // returns a pointer to the D3DCAPS8 structer for the device.  NOT persistent; can change.
+    //D3DFORMAT    GetBackBufFormat();     // returns the pixelformat of the back buffer (probably D3DFMT_R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_A4R4G4B4, D3DFMT_R3G3B2, D3DFMT_A8R3G3B2, D3DFMT_X4R4G4B4, or D3DFMT_UNKNOWN)
+    //D3DFORMAT    GetBackBufZFormat();    // returns the pixelformat of the back buffer's Z buffer (probably D3DFMT_D16_LOCKABLE, D3DFMT_D32, D3DFMT_D15S1, D3DFMT_D24S8, D3DFMT_D16, D3DFMT_D24X8, D3DFMT_D24X4S4, or D3DFMT_UNKNOWN)
     char*        GetDriverFilename();    // returns a text string with the filename of the current display adapter driver, such as "nv4_disp.dll"
     char*        GetDriverDescription(); // returns a text string describing the current display adapter, such as "NVIDIA GeForce4 Ti 4200"
 
@@ -143,7 +143,7 @@ protected:
     int          m_skin;                    // 0 or 1
     int          m_fix_slow_text;           // 0 or 1
     td_fontinfo  m_fontinfo[NUM_BASIC_FONTS + NUM_EXTRA_FONTS];
-    D3DDISPLAYMODE m_disp_mode_fs;          // a D3DDISPLAYMODE struct that specifies the width, height, refresh rate, and color format to use when the plugin goes fullscreen.
+    //D3DDISPLAYMODE m_disp_mode_fs;          // a D3DDISPLAYMODE struct that specifies the width, height, refresh rate, and color format to use when the plugin goes fullscreen.
 	int			m_posX;
 	int			m_posY;
 	int			m_backBufferWidth;
@@ -181,16 +181,16 @@ private:
     ID3D11Device* m_device;
     ID3D11DeviceContext* m_context;
     // FONTS
-	IDirect3DTexture9* m_lpDDSText;
+	//IDirect3DTexture9* m_lpDDSText;
 //    LPD3DXFONT   m_d3dx_font[NUM_BASIC_FONTS + NUM_EXTRA_FONTS];
 //    LPD3DXFONT   m_d3dx_desktop_font;
 //    HFONT        m_font[NUM_BASIC_FONTS + NUM_EXTRA_FONTS];
 //    HFONT        m_font_desktop;
     
     // PRIVATE CONFIG PANEL SETTINGS
-    D3DMULTISAMPLE_TYPE m_multisample_fullscreen;
-    D3DMULTISAMPLE_TYPE m_multisample_desktop;
-    D3DMULTISAMPLE_TYPE m_multisample_windowed;
+    //D3DMULTISAMPLE_TYPE m_multisample_fullscreen;
+    //D3DMULTISAMPLE_TYPE m_multisample_desktop;
+    //D3DMULTISAMPLE_TYPE m_multisample_windowed;
     GUID m_adapter_guid_fullscreen;
     GUID m_adapter_guid_desktop;
 public:
@@ -224,7 +224,7 @@ private:
 
     // PRIVATE - DESKTOP MODE STUFF
 //    list<icon_t>        m_icon_list;
-    IDirect3DTexture9*  m_desktop_icons_texture[MAX_ICON_TEXTURES];
+    //IDirect3DTexture9*  m_desktop_icons_texture[MAX_ICON_TEXTURES];
     HWND                m_hWndProgMan;
     HWND                m_hWndDesktop;
     HWND                m_hWndDesktopListView;
@@ -321,7 +321,7 @@ private:
     // DESKTOP MODE FUNCTIONS (found in desktop_mode.cpp)
     int  InitDesktopMode();
     void CleanUpDesktopMode();
-    int  CreateDesktopIconTexture(IDirect3DTexture9** ppTex);
+    //int  CreateDesktopIconTexture(IDirect3DTexture9** ppTex);
     void DeselectDesktop();
     void UpdateDesktopBitmaps();
     int  StuffIconBitmaps(int iStartIconIdx, int iTexNum, int *show_msgs);
@@ -337,7 +337,7 @@ private:
 	  int		m_nTextWndWidth;
 	  int		m_nTextWndHeight;
 	  bool		m_bTextWindowClassRegistered;
-      LPDIRECT3D9 m_vjd3d8;
+      //LPDIRECT3D9 m_vjd3d8;
       DX11Context* m_vjd3d8_device;
 	  //HDC		m_memDC;		// memory device context
 	  //HBITMAP m_memBM, m_oldBM;

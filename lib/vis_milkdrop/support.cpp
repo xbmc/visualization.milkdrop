@@ -36,13 +36,14 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <stdio.h>
 #include <DirectXMath.h>
+#include "dx11/DirectXHelpers.h"
 
 bool g_bDebugOutput = false;
 bool g_bDumpFileCleared = false;
 
 //---------------------------------------------------
 void PrepareFor3DDrawing(
-        IDirect3DDevice9 *pDevice, 
+        void *pDevice, 
         int viewport_width,
         int viewport_height,
         float fov_in_degrees, 

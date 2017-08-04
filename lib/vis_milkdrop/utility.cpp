@@ -322,7 +322,7 @@ void GetFromCache(char *cache, char *key, char *szDefault, char *buffer, int buf
 
 	while (cache[0] != 0 || cache[1] != 0)
 	{
-		if (strnicmp(key, cache, keyLength)==0)
+		if (_strnicmp(key, cache, keyLength)==0)
 		{
 			if (cache[keyLength] == '=')
 			{
@@ -387,7 +387,7 @@ void InternalGetPrivateProfileSection(char *szSectionName, char *buffer, int siz
 					// End of section name, check if its the one we want
 					tempSectionName[strIndex] = 0;
 
-					if (stricmp(szSectionName, tempSectionName) == 0)
+					if (_stricmp(szSectionName, tempSectionName) == 0)
 					{
 						while (fileSize > 0)
 						{
@@ -408,7 +408,7 @@ void InternalGetPrivateProfileSection(char *szSectionName, char *buffer, int siz
 
 								if (size == 0)
 								{
-									OutputDebugString("Section cache size too small.\n");
+									//OutputDebugString("Section cache size too small.\n");
 									delete[] fileData;
 									return;
 								}
@@ -447,7 +447,7 @@ void InternalGetPrivateProfileSection(char *szSectionName, char *buffer, int siz
 
 											if (size == 0)
 											{
-												OutputDebugString("Section cache size too small.\n");
+												//OutputDebugString("Section cache size too small.\n");
 												delete[] fileData;
 												return;
 											}
@@ -487,7 +487,7 @@ void InternalGetPrivateProfileSection(char *szSectionName, char *buffer, int siz
 
 int	InternalGetPrivateProfileString(char *szSectionName, char *szKeyName, char *szDefault, char *buffer, int size, char *szIniFile)
 {
-	if (stricmp(currIniFilename, szIniFile) || stricmp(currIniSection, szSectionName))
+	if (_stricmp(currIniFilename, szIniFile) || _stricmp(currIniSection, szSectionName))
 	{
 		InternalGetPrivateProfileSection(szSectionName, sectionCache, SECTION_CACHE_SIZE, szIniFile);
 

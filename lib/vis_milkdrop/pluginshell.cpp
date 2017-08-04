@@ -195,9 +195,9 @@ char*     CPluginShell::GetConfigIniFile()  { return m_szConfigIniFile;   };
 //int       CPluginShell::GetFontHeight(eFontIndex idx) { if (idx >= 0 && idx < NUM_BASIC_FONTS + NUM_EXTRA_FONTS) return m_fontinfo[idx].nSize; else return 0; };
 int       CPluginShell::GetBitDepth()       { return m_lpDX->GetBitDepth(); };
 DX11Context* CPluginShell::GetDevice()      { if (m_lpDX) return m_lpDX->m_lpDevice; else return NULL; };
-D3DCAPS9* CPluginShell::GetCaps()           { if (m_lpDX) return &(m_lpDX->m_caps);  else return NULL; };
-D3DFORMAT CPluginShell::GetBackBufFormat()  { if (m_lpDX) return m_lpDX->m_current_mode.display_mode.Format; else return D3DFMT_UNKNOWN; };
-D3DFORMAT CPluginShell::GetBackBufZFormat() { if (m_lpDX) return m_lpDX->GetZFormat(); else return D3DFMT_UNKNOWN; };
+//D3DCAPS9* CPluginShell::GetCaps()           { if (m_lpDX) return &(m_lpDX->m_caps);  else return NULL; };
+//D3DFORMAT CPluginShell::GetBackBufFormat()  { if (m_lpDX) return m_lpDX->m_current_mode.display_mode.Format; else return D3DFMT_UNKNOWN; };
+//D3DFORMAT CPluginShell::GetBackBufZFormat() { if (m_lpDX) return m_lpDX->GetZFormat(); else return D3DFMT_UNKNOWN; };
 //LPD3DXFONT CPluginShell::GetFont(eFontIndex idx) { if (idx >= 0 && idx < NUM_BASIC_FONTS + NUM_EXTRA_FONTS) return m_d3dx_font[idx]; else return NULL; };
 char* CPluginShell::GetDriverFilename()    { if (m_lpDX) return m_lpDX->GetDriver(); else return NULL; };
 char* CPluginShell::GetDriverDescription() { if (m_lpDX) return m_lpDX->GetDesc(); else return NULL; };
@@ -718,7 +718,7 @@ void CPluginShell::OnUserResizeWindow()
 void CPluginShell::StuffParams(DXCONTEXT_PARAMS *pParams)
 {
     pParams->screenmode   = m_screenmode;
-    pParams->display_mode = m_disp_mode_fs;
+    //pParams->display_mode = m_disp_mode_fs;
     pParams->nbackbuf     = 1;
     pParams->m_dualhead_horz = m_dualhead_horz;
     pParams->m_dualhead_vert = m_dualhead_vert;
@@ -728,18 +728,18 @@ void CPluginShell::StuffParams(DXCONTEXT_PARAMS *pParams)
     case WINDOWED:
         pParams->allow_page_tearing = m_allow_page_tearing_w;
         pParams->adapter_guid       = m_adapter_guid_windowed;
-        pParams->multisamp          = m_multisample_windowed;
+        //pParams->multisamp          = m_multisample_windowed;
         break;
     case FULLSCREEN:
     case FAKE_FULLSCREEN:
         pParams->allow_page_tearing = m_allow_page_tearing_fs;
         pParams->adapter_guid       = m_adapter_guid_fullscreen;
-        pParams->multisamp          = m_multisample_fullscreen;
+        //pParams->multisamp          = m_multisample_fullscreen;
         break;
     case DESKTOP:
         pParams->allow_page_tearing = m_allow_page_tearing_dm;
         pParams->adapter_guid       = m_adapter_guid_desktop;
-        pParams->multisamp          = m_multisample_desktop;
+        //pParams->multisamp          = m_multisample_desktop;
         break;
     }
     pParams->parent_window = (m_screenmode==DESKTOP) ? m_hWndDesktopListView : NULL;
@@ -974,16 +974,16 @@ int CPluginShell::PluginPreInitialize(HWND hWinampWnd, HINSTANCE hWinampInstance
                m_fontinfo[NUM_BASIC_FONTS + 4].bAntiAliased = EXTRA_FONT_5_DEFAULT_AA;
     #endif
 
-    m_disp_mode_fs.Width = DEFAULT_FULLSCREEN_WIDTH;
-    m_disp_mode_fs.Height = DEFAULT_FULLSCREEN_HEIGHT;
-    m_disp_mode_fs.Format = D3DFMT_UNKNOWN;
-    m_disp_mode_fs.RefreshRate = 60;
+    //m_disp_mode_fs.Width = DEFAULT_FULLSCREEN_WIDTH;
+    //m_disp_mode_fs.Height = DEFAULT_FULLSCREEN_HEIGHT;
+    //m_disp_mode_fs.Format = 0/*D3DFMT_UNKNOWN*/;
+    //m_disp_mode_fs.RefreshRate = 60;
 
     // PROTECTED STRUCTURES/POINTERS
 //    for (int i=0; i<NUM_BASIC_FONTS + NUM_EXTRA_FONTS; i++)
 //        m_d3dx_font[i] = NULL;
 //    m_d3dx_desktop_font = NULL;
-    m_lpDDSText = NULL;
+    //m_lpDDSText = NULL;
     ZeroMemory(&m_sound, sizeof(td_soundinfo));
     for (int ch=0; ch<2; ch++)
         for (int i=0; i<3; i++)
@@ -1014,9 +1014,9 @@ int CPluginShell::PluginPreInitialize(HWND hWinampWnd, HINSTANCE hWinampInstance
     sprintf(m_szConfigIniFile, "%s%s", m_szPluginsDirPath, INIFILE);
 
     // PRIVATE CONFIG PANEL SETTINGS
-    m_multisample_fullscreen      = D3DMULTISAMPLE_NONE;
-    m_multisample_desktop         = D3DMULTISAMPLE_NONE;
-    m_multisample_windowed        = D3DMULTISAMPLE_NONE;
+    //m_multisample_fullscreen      = D3DMULTISAMPLE_NONE;
+    //m_multisample_desktop         = D3DMULTISAMPLE_NONE;
+    //m_multisample_windowed        = D3DMULTISAMPLE_NONE;
     ZeroMemory(&m_adapter_guid_fullscreen, sizeof(GUID));
     ZeroMemory(&m_adapter_guid_desktop   , sizeof(GUID));
     ZeroMemory(&m_adapter_guid_windowed  , sizeof(GUID));
@@ -1094,7 +1094,7 @@ int CPluginShell::PluginPreInitialize(HWND hWinampWnd, HINSTANCE hWinampInstance
 	m_nTextWndWidth = 0;
 	m_nTextWndHeight = 0;
 	m_bTextWindowClassRegistered = false;
-    m_vjd3d8        = NULL;
+    //m_vjd3d8        = NULL;
     m_vjd3d8_device = NULL;
 
     //-----
@@ -1719,7 +1719,7 @@ void CPluginShell::DoTime()
     {
         // get low-precision time
         // precision: usually 1 ms (MILLIsecond) for win98, and 10 ms for win2k.
-        new_raw_time = (double)(GetTickCount()*0.001);
+        new_raw_time = (double)(GetTickCount64()*0.001);
         elapsed = (float)(new_raw_time - m_last_raw_time);
     }
 
@@ -2000,9 +2000,9 @@ void CPluginShell::PrepareFor2DDrawing_B(DX11Context *pDevice, int w, int h)
         DirectX::XMMATRIX Ortho2D = DirectX::XMMatrixOrthographicLH(w, h, 0.0f, 1.0f);
         DirectX::XMMATRIX Identity = DirectX::XMMatrixIdentity();
 
-        pDevice->SetTransform(D3DTS_PROJECTION, &Ortho2D);
-        pDevice->SetTransform(D3DTS_WORLD, &Identity);
-        pDevice->SetTransform(D3DTS_VIEW, &Identity);
+        pDevice->SetTransform(3 /*D3DTS_PROJECTION*/, &Ortho2D);
+        pDevice->SetTransform(256 /*D3DTS_WORLD*/, &Identity);
+        pDevice->SetTransform(2 /*D3DTS_VIEW*/, &Identity);
     }
 }
 
