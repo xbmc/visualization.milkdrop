@@ -198,9 +198,9 @@ void PrepareFor2DDrawing(DX11Context* pDevice)
         DirectX::XMMATRIX Ortho2D = DirectX::XMMatrixOrthographicLH(2.0f, -2.0f, 0.0f, 1.0f);
         DirectX::XMMATRIX Identity = DirectX::XMMatrixIdentity();
 
-        pDevice->SetTransform(D3DTS_PROJECTION, &Ortho2D);
-        pDevice->SetTransform(D3DTS_WORLD, &Identity);
-        pDevice->SetTransform(D3DTS_VIEW, &Identity);
+        pDevice->SetTransform(3 /*D3DTS_PROJECTION*/, &Ortho2D);
+        pDevice->SetTransform(256 /*D3DTS_WORLD*/, &Identity);
+        pDevice->SetTransform(2 /*D3DTS_VIEW*/, &Identity);
     }
 }
 

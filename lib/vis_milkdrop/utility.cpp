@@ -1003,7 +1003,7 @@ double GetPentiumTimeAsDouble(unsigned __int64 frequency)
                 sprintf(buf2, "%shwnd=%08x, msg=%s, w=%08x, l=%08x\n", szStartText, hwnd, buf, wParam, lParam);
             else
                 sprintf(buf2, "%shwnd=%08x, msg=unknown/0x%08x, w=%08x, l=%08x\n", szStartText, hwnd, msg, wParam, lParam);
-            OutputDebugString(buf2);
+            OutputDebugStringA(buf2);
         #endif
     }
 #endif
