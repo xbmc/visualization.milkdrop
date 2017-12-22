@@ -43,7 +43,7 @@ set(SOURCES dx11/CommonStates.cpp
             state.cpp
             support.cpp)
 
-add_subdirectory(evallib)
+add_subdirectory(ns-eel2)
 
 if(CORE_SYSTEM_NAME STREQUAL windowsstore)
   add_definitions(-D_WIN32_WINNT=0x0A00 -D_WINDOWS)
@@ -53,4 +53,4 @@ endif()
 remove_definitions(-D_USE_32BIT_TIME_T)
 add_library(vis_milkdrop STATIC ${SOURCES} ${SHADER_INCLUDES})
 
-target_link_libraries(vis_milkdrop evallib)
+target_link_libraries(vis_milkdrop ns-eel2)

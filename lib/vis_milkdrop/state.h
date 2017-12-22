@@ -35,7 +35,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "evallib/eval.h"
+//#include "evallib/eval.h"
+#include "ns-eel2/ns-eel.h"
 #include "md_defines.h"
 
 // flags for CState::RecompileExpressions():
@@ -106,11 +107,11 @@ public:
     char  m_szInit[8192]; // note: only executed once -> don't need to save codehandle
     char  m_szPerFrame[8192];
     //char  m_szPerPoint[8192];
-    int   m_pf_codehandle;
+    NSEEL_CODEHANDLE   m_pf_codehandle;
     //int   m_pp_codehandle;
 
 	// for per-frame expression evaluation:
-    varType	m_pf_vars[EVAL_MAX_VARS];
+	NSEEL_VMCTX m_pf_eel;
 	double *var_pf_time, *var_pf_fps;
 	double *var_pf_frame;
 	double *var_pf_progress;
@@ -163,11 +164,11 @@ public:
     char  m_szInit[8192]; // note: only executed once -> don't need to save codehandle
     char  m_szPerFrame[8192];
     char  m_szPerPoint[8192];
-    int   m_pf_codehandle;
-    int   m_pp_codehandle;
+    NSEEL_CODEHANDLE   m_pf_codehandle;
+    NSEEL_CODEHANDLE   m_pp_codehandle;
 
 	// for per-frame expression evaluation:
-    varType	m_pf_vars[EVAL_MAX_VARS];
+	NSEEL_VMCTX m_pf_eel;
 	double *var_pf_time, *var_pf_fps;
 	double *var_pf_frame;
 	double *var_pf_progress;
@@ -177,7 +178,7 @@ public:
 	double *var_pf_r, *var_pf_g, *var_pf_b, *var_pf_a;
 
 	// for per-point expression evaluation:
-    varType m_pp_vars[EVAL_MAX_VARS];
+	NSEEL_VMCTX m_pp_eel;
 	double *var_pp_time, *var_pp_fps;
 	double *var_pp_frame;
 	double *var_pp_progress;
@@ -322,8 +323,8 @@ public:
 	//COscillator			m_wavePosY;		// 0 = centered
 
 	// for arbitrary function evaluation:
-    int				m_pf_codehandle;	
-    int				m_pp_codehandle;	
+    NSEEL_CODEHANDLE				m_pf_codehandle;
+    NSEEL_CODEHANDLE				m_pp_codehandle;
     char			m_szPerFrameInit[8192];
     char			m_szPerFrameExpr[8192];
     //char			m_szPerPixelInit[8192];
@@ -338,7 +339,7 @@ public:
 	float m_fBlendProgress;	// 0..1; updated every frame based on StartTime and Duration.
 
 	// for once-per-frame expression evaluation:
-    varType	m_pf_vars[EVAL_MAX_VARS];
+	NSEEL_VMCTX m_pf_eel;
     double *var_pf_zoom, *var_pf_zoomexp, *var_pf_rot, *var_pf_warp, *var_pf_cx, *var_pf_cy, *var_pf_dx, *var_pf_dy, *var_pf_sx, *var_pf_sy;
 	double *var_pf_time, *var_pf_fps;
 	double *var_pf_bass, *var_pf_mid, *var_pf_treb, *var_pf_bass_att, *var_pf_mid_att, *var_pf_treb_att;
@@ -370,7 +371,7 @@ public:
     
 
 	// for per-vertex expression evaluation:
-    varType m_pv_vars[EVAL_MAX_VARS];
+	NSEEL_VMCTX m_pv_eel;
     double *var_pv_zoom, *var_pv_zoomexp, *var_pv_rot, *var_pv_warp, *var_pv_cx, *var_pv_cy, *var_pv_dx, *var_pv_dy, *var_pv_sx, *var_pv_sy;
 	double *var_pv_time, *var_pv_fps;
 	double *var_pv_bass, *var_pv_mid, *var_pv_treb, *var_pv_bass_att, *var_pv_mid_att, *var_pv_treb_att;
