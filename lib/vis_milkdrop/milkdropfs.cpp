@@ -30,8 +30,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.h"
 //#include "resource.h"
 #include "support.h"
-#include "evallib\eval.h"		// for math. expr. eval - thanks Francis! (in SourceOffSite, it's the 'vis_avs\evallib' project.)
-#include "evallib\compiler.h"
+//#include "evallib\eval.h"		// for math. expr. eval - thanks Francis! (in SourceOffSite, it's the 'vis_avs\evallib' project.)
+//#include "evallib\compiler.h"
+#include "ns-eel2/ns-eel.h"
 #include "utility.h"
 
 #include <stdlib.h>
@@ -79,9 +80,10 @@ int g_title_font_sizes[] =
 // function changes the control Word to set them and returns
 // TRUE, putting the old control Word value in the passback
 // location pointed to by pwOldCW.
-BOOL MungeFPCW( WORD *pwOldCW )
+void MungeFPCW( WORD *pwOldCW )
 {
-    BOOL ret = FALSE;
+#if 0
+  BOOL ret = FALSE;
     WORD wTemp, wSave;
  
     __asm fstcw wSave
@@ -102,13 +104,21 @@ BOOL MungeFPCW( WORD *pwOldCW )
     }
     if (pwOldCW) *pwOldCW = wSave;
     return ret;
+#else
+#ifndef _WIN64
+  _controlfp(_PC_24, _MCW_PC); // single precision (not supported on x64 see MSDN)
+#endif // !_WIN64
+  _controlfp(_RC_NEAR, _MCW_RC); // round to nearest mode
+  _controlfp(_EM_ZERODIVIDE, _EM_ZERODIVIDE);  // disable divide-by-zero
+#endif
 }
  
-
+#if 0
 void RestoreFPCW(WORD wSave)
 {
-    __asm fldcw wSave
+  __asm fldcw wSave
 }
+#endif // 0
 
 int GetNumToSpawn(float fTime, float fDeltaT, float fRate, float fRegularity, int iNumSpawnedSoFar)
 {
@@ -596,12 +606,10 @@ void CPlugin::RunPerFrameEquations()
 #ifndef _NO_EXPR_
 		if (pState->m_pf_codehandle)
 		{
-			resetVars(pState->m_pf_vars);
 			if (pState->m_pf_codehandle)
 			{
-				executeCode(pState->m_pf_codehandle);
+        NSEEL_code_execute(pState->m_pf_codehandle);
 			}
-			resetVars(NULL);
 		}
 #endif
 
@@ -1435,8 +1443,6 @@ void CPlugin::WarpedBlitFromVS0ToVS1()
 		else
 			pState = m_pOldState;
 
-		resetVars(pState->m_pv_vars);
-
 		// cache the doubles as floats so that computations are a bit faster
 		float fZoom		= (float)(*pState->var_pf_zoom);
 		float fZoomExp	= (float)(*pState->var_pf_zoomexp);
@@ -1499,7 +1505,7 @@ void CPlugin::WarpedBlitFromVS0ToVS1()
 					//*pState->var_pv_treb_att	= *pState->var_pv_treb_att;
 
 #ifndef _NO_EXPR_
-					executeCode(pState->m_pp_codehandle);
+          NSEEL_code_execute(pState->m_pp_codehandle);
 #endif
 
 					fZoom = (float)(*pState->var_pv_zoom);
@@ -1584,7 +1590,6 @@ void CPlugin::WarpedBlitFromVS0ToVS1()
 	    pState->q_values_after_init_code[7] = *pState->var_pv_q8;
         */
 
-		resetVars(NULL);
 	}
 
 
@@ -1676,9 +1681,7 @@ void CPlugin::DrawCustomShapes()
 			    #ifndef _NO_EXPR_
 				    if (pState->m_shape[i].m_pf_codehandle)
 				    {
-					    resetVars(pState->m_shape[i].m_pf_vars);
-					    executeCode(pState->m_shape[i].m_pf_codehandle);
-					    resetVars(NULL);
+              NSEEL_code_execute(pState->m_shape[i].m_pf_codehandle);
 				    }
 			    #endif
 
@@ -1980,7 +1983,7 @@ void CPlugin::DrawCustomWaves()
 			            *pState->m_wave[i].var_pp_mid_att	= *pState->m_wave[i].var_pf_mid_att;	
 			            *pState->m_wave[i].var_pp_treb_att	= *pState->m_wave[i].var_pf_treb_att;
 
-				    executeCode(pState->m_wave[i].m_pf_codehandle);
+                  NSEEL_code_execute(pState->m_wave[i].m_pf_codehandle);
 
                         *pState->m_wave[i].var_pp_q1        = *pState->m_wave[i].var_pf_q1;
                         *pState->m_wave[i].var_pp_q2        = *pState->m_wave[i].var_pf_q2;
@@ -2000,10 +2003,6 @@ void CPlugin::DrawCustomWaves()
                         *pState->m_wave[i].var_pp_t8        = *pState->m_wave[i].var_pf_t8;
 
                     // 2. for each point, execute per-point code
-
-                    #ifndef _NO_EXPR_
-                        resetVars(pState->m_wave[i].m_pp_vars);
-                    #endif
 
                     // to do:
                     //  -add any of the m_wave[i].xxx menu-accessible vars to the code?
@@ -2025,7 +2024,7 @@ void CPlugin::DrawCustomWaves()
                         *pState->m_wave[i].var_pp_a      = *pState->m_wave[i].var_pf_a;
 
                         #ifndef _NO_EXPR_
-                            executeCode(pState->m_wave[i].m_pp_codehandle);
+                        NSEEL_code_execute(pState->m_wave[i].m_pp_codehandle);
                         #endif
 
                         v[j].x = (float)(*pState->m_wave[i].var_pp_x* 2-1);//*ASPECT;
@@ -2036,10 +2035,6 @@ void CPlugin::DrawCustomWaves()
                         v[j].g = COLOR_NORM(*pState->m_wave[i].var_pp_g);
                         v[j].b = COLOR_NORM(*pState->m_wave[i].var_pp_b);
                     }
-
-                    #ifndef _NO_EXPR_
-                        resetVars(NULL);
-                    #endif
 
                     // save changes to t1-t8 this frame
                     /*

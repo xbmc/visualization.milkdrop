@@ -499,6 +499,9 @@ extern char g_visName[];			// declared in MilkDropXBMC.cpp
 extern bool g_bDebugOutput;
 extern bool g_bDumpFileCleared;
 
+void NSEEL_HOSTSTUB_EnterMutex() {}
+void NSEEL_HOSTSTUB_LeaveMutex() {}
+
 // these callback functions are called by menu.cpp whenever the user finishes editing an eval_ expression.
 void OnUserEditedPerFrame(LPARAM param1, LPARAM param2)
 {
@@ -1014,7 +1017,7 @@ int CPlugin::AllocateMyNonDx8Stuff()
 	
 	BuildMenus();
 
-	m_bMMX = CheckForMMX();
+	//m_bMMX = CheckForMMX();
 	//m_bSSE = CheckForSSE();
 
 	m_pState->Default();

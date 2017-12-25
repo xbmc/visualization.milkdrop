@@ -29,7 +29,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "state.h"
 #include "support.h"
-#include "evallib/compiler.h"
+//#include "evallib/compiler.h"
 #include "plugin.h"
 #include "utility.h"
 
@@ -50,22 +50,39 @@ CState::CState()
 	// it is a SUBSET of the per-vertex calculation variable list.
 	m_pf_codehandle = NULL;
 	m_pp_codehandle = NULL;
-    for (int i=0; i<MAX_CUSTOM_WAVES; i++)
-    {
-        m_wave[i].m_pf_codehandle = NULL;
-        m_wave[i].m_pp_codehandle = NULL;
-    }
-    for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
-    {
-        m_shape[i].m_pf_codehandle = NULL;
-        //m_shape[i].m_pp_codehandle = NULL;
-    }
+  m_pf_eel = NSEEL_VM_alloc();
+  m_pv_eel = NSEEL_VM_alloc();
+  for (int i=0; i<MAX_CUSTOM_WAVES; i++)
+  {
+    m_wave[i].m_pf_codehandle = NULL;
+    m_wave[i].m_pp_codehandle = NULL;
+    m_wave[i].m_pf_eel = NSEEL_VM_alloc();
+    m_wave[i].m_pp_eel = NSEEL_VM_alloc();
+  }
+  for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
+  {
+    m_shape[i].m_pf_codehandle = NULL;
+    //m_shape[i].m_pp_codehandle = NULL;
+    m_shape[i].m_pf_eel = NSEEL_VM_alloc();
+  }
 	//RegisterBuiltInVariables();
 }
 
 CState::~CState()
 {
 	FreeVarsAndCode();
+  NSEEL_VM_free(m_pf_eel);
+  NSEEL_VM_free(m_pv_eel);
+  int i;
+  for (i = 0; i<MAX_CUSTOM_WAVES; i++)
+  {
+    NSEEL_VM_free(m_wave[i].m_pf_eel);
+    NSEEL_VM_free(m_wave[i].m_pp_eel);
+  }
+  for (i = 0; i<MAX_CUSTOM_SHAPES; i++)
+  {
+    NSEEL_VM_free(m_shape[i].m_pf_eel);
+  }
 }
 
 //--------------------------------------------------------------------------------
@@ -74,199 +91,195 @@ void CState::RegisterBuiltInVariables(int flags)
 {
     if (flags & RECOMPILE_PRESET_CODE)
     {
-	    resetVars(m_pf_vars);
-        var_pf_zoom		= registerVar("zoom");		// i/o
-	    var_pf_zoomexp  = registerVar("zoomexp");	// i/o
-	    var_pf_rot		= registerVar("rot");		// i/o
-	    var_pf_warp		= registerVar("warp");		// i/o
-	    var_pf_cx		= registerVar("cx");		// i/o
-	    var_pf_cy		= registerVar("cy");		// i/o
-	    var_pf_dx		= registerVar("dx");		// i/o
-	    var_pf_dy		= registerVar("dy");		// i/o
-	    var_pf_sx		= registerVar("sx");		// i/o
-	    var_pf_sy		= registerVar("sy");		// i/o
-	    var_pf_time		= registerVar("time");		// i
-	    var_pf_fps      = registerVar("fps");       // i
-	    var_pf_bass		= registerVar("bass");		// i
-	    var_pf_mid		= registerVar("mid");		// i
-	    var_pf_treb		= registerVar("treb");		// i
-	    var_pf_bass_att	= registerVar("bass_att");	// i
-	    var_pf_mid_att	= registerVar("mid_att");	// i
-	    var_pf_treb_att	= registerVar("treb_att");	// i
-	    var_pf_frame    = registerVar("frame");
-	    var_pf_decay	= registerVar("decay");
-	    var_pf_wave_a	= registerVar("wave_a");
-	    var_pf_wave_r	= registerVar("wave_r");
-	    var_pf_wave_g	= registerVar("wave_g");
-	    var_pf_wave_b	= registerVar("wave_b");
-	    var_pf_wave_x	= registerVar("wave_x");
-	    var_pf_wave_y	= registerVar("wave_y");
-	    var_pf_wave_mystery = registerVar("wave_mystery");
-	    var_pf_wave_mode = registerVar("wave_mode");
-	    var_pf_q1       = registerVar("q1");
-	    var_pf_q2       = registerVar("q2");
-	    var_pf_q3       = registerVar("q3");
-	    var_pf_q4       = registerVar("q4");
-	    var_pf_q5       = registerVar("q5");
-	    var_pf_q6       = registerVar("q6");
-	    var_pf_q7       = registerVar("q7");
-	    var_pf_q8       = registerVar("q8");
-	    var_pf_progress = registerVar("progress");
-	    var_pf_ob_size	= registerVar("ob_size");
-	    var_pf_ob_r		= registerVar("ob_r");
-	    var_pf_ob_g		= registerVar("ob_g");
-	    var_pf_ob_b		= registerVar("ob_b");
-	    var_pf_ob_a		= registerVar("ob_a");
-	    var_pf_ib_size	= registerVar("ib_size");
-	    var_pf_ib_r		= registerVar("ib_r");
-	    var_pf_ib_g		= registerVar("ib_g");
-	    var_pf_ib_b		= registerVar("ib_b");
-	    var_pf_ib_a		= registerVar("ib_a");
-	    var_pf_mv_x		= registerVar("mv_x");
-	    var_pf_mv_y		= registerVar("mv_y");
-	    var_pf_mv_dx	= registerVar("mv_dx");
-	    var_pf_mv_dy	= registerVar("mv_dy");
-	    var_pf_mv_l		= registerVar("mv_l");
-	    var_pf_mv_r		= registerVar("mv_r");
-	    var_pf_mv_g		= registerVar("mv_g");
-	    var_pf_mv_b		= registerVar("mv_b");
-	    var_pf_mv_a		= registerVar("mv_a");
-	    var_pf_monitor  = registerVar("monitor");
-	    var_pf_echo_zoom   = registerVar("echo_zoom");
-	    var_pf_echo_alpha  = registerVar("echo_alpha");
-	    var_pf_echo_orient = registerVar("echo_orient");
-        var_pf_wave_usedots  = registerVar("wave_usedots");
-        var_pf_wave_thick    = registerVar("wave_thick");
-        var_pf_wave_additive = registerVar("wave_additive");
-        var_pf_wave_brighten = registerVar("wave_brighten");
-        var_pf_darken_center = registerVar("darken_center");
-        var_pf_gamma         = registerVar("gamma");
-        var_pf_wrap          = registerVar("wrap");
-        var_pf_invert        = registerVar("invert");
-        var_pf_brighten      = registerVar("brighten");
-        var_pf_darken        = registerVar("darken");
-        var_pf_solarize      = registerVar("solarize");
-        var_pf_meshx         = registerVar("meshx");
-        var_pf_meshy         = registerVar("meshy");
+      NSEEL_VM_resetvars(m_pf_eel);
+      var_pf_zoom		= NSEEL_VM_regvar(m_pf_eel, "zoom");		// i/o
+	    var_pf_zoomexp  = NSEEL_VM_regvar(m_pf_eel, "zoomexp");	// i/o
+	    var_pf_rot		= NSEEL_VM_regvar(m_pf_eel, "rot");		// i/o
+	    var_pf_warp		= NSEEL_VM_regvar(m_pf_eel, "warp");		// i/o
+	    var_pf_cx		= NSEEL_VM_regvar(m_pf_eel, "cx");		// i/o
+	    var_pf_cy		= NSEEL_VM_regvar(m_pf_eel, "cy");		// i/o
+	    var_pf_dx		= NSEEL_VM_regvar(m_pf_eel, "dx");		// i/o
+	    var_pf_dy		= NSEEL_VM_regvar(m_pf_eel, "dy");		// i/o
+	    var_pf_sx		= NSEEL_VM_regvar(m_pf_eel, "sx");		// i/o
+	    var_pf_sy		= NSEEL_VM_regvar(m_pf_eel, "sy");		// i/o
+	    var_pf_time		= NSEEL_VM_regvar(m_pf_eel, "time");		// i
+	    var_pf_fps      = NSEEL_VM_regvar(m_pf_eel, "fps");       // i
+	    var_pf_bass		= NSEEL_VM_regvar(m_pf_eel, "bass");		// i
+	    var_pf_mid		= NSEEL_VM_regvar(m_pf_eel, "mid");		// i
+	    var_pf_treb		= NSEEL_VM_regvar(m_pf_eel, "treb");		// i
+	    var_pf_bass_att	= NSEEL_VM_regvar(m_pf_eel, "bass_att");	// i
+	    var_pf_mid_att	= NSEEL_VM_regvar(m_pf_eel, "mid_att");	// i
+	    var_pf_treb_att	= NSEEL_VM_regvar(m_pf_eel, "treb_att");	// i
+	    var_pf_frame    = NSEEL_VM_regvar(m_pf_eel, "frame");
+	    var_pf_decay	= NSEEL_VM_regvar(m_pf_eel, "decay");
+	    var_pf_wave_a	= NSEEL_VM_regvar(m_pf_eel, "wave_a");
+	    var_pf_wave_r	= NSEEL_VM_regvar(m_pf_eel, "wave_r");
+	    var_pf_wave_g	= NSEEL_VM_regvar(m_pf_eel, "wave_g");
+	    var_pf_wave_b	= NSEEL_VM_regvar(m_pf_eel, "wave_b");
+	    var_pf_wave_x	= NSEEL_VM_regvar(m_pf_eel, "wave_x");
+	    var_pf_wave_y	= NSEEL_VM_regvar(m_pf_eel, "wave_y");
+	    var_pf_wave_mystery = NSEEL_VM_regvar(m_pf_eel, "wave_mystery");
+	    var_pf_wave_mode = NSEEL_VM_regvar(m_pf_eel, "wave_mode");
+	    var_pf_q1       = NSEEL_VM_regvar(m_pf_eel, "q1");
+	    var_pf_q2       = NSEEL_VM_regvar(m_pf_eel, "q2");
+	    var_pf_q3       = NSEEL_VM_regvar(m_pf_eel, "q3");
+	    var_pf_q4       = NSEEL_VM_regvar(m_pf_eel, "q4");
+	    var_pf_q5       = NSEEL_VM_regvar(m_pf_eel, "q5");
+	    var_pf_q6       = NSEEL_VM_regvar(m_pf_eel, "q6");
+	    var_pf_q7       = NSEEL_VM_regvar(m_pf_eel, "q7");
+	    var_pf_q8       = NSEEL_VM_regvar(m_pf_eel, "q8");
+	    var_pf_progress = NSEEL_VM_regvar(m_pf_eel, "progress");
+	    var_pf_ob_size	= NSEEL_VM_regvar(m_pf_eel, "ob_size");
+	    var_pf_ob_r		= NSEEL_VM_regvar(m_pf_eel, "ob_r");
+	    var_pf_ob_g		= NSEEL_VM_regvar(m_pf_eel, "ob_g");
+	    var_pf_ob_b		= NSEEL_VM_regvar(m_pf_eel, "ob_b");
+	    var_pf_ob_a		= NSEEL_VM_regvar(m_pf_eel, "ob_a");
+	    var_pf_ib_size	= NSEEL_VM_regvar(m_pf_eel, "ib_size");
+	    var_pf_ib_r		= NSEEL_VM_regvar(m_pf_eel, "ib_r");
+	    var_pf_ib_g		= NSEEL_VM_regvar(m_pf_eel, "ib_g");
+	    var_pf_ib_b		= NSEEL_VM_regvar(m_pf_eel, "ib_b");
+	    var_pf_ib_a		= NSEEL_VM_regvar(m_pf_eel, "ib_a");
+	    var_pf_mv_x		= NSEEL_VM_regvar(m_pf_eel, "mv_x");
+	    var_pf_mv_y		= NSEEL_VM_regvar(m_pf_eel, "mv_y");
+	    var_pf_mv_dx	= NSEEL_VM_regvar(m_pf_eel, "mv_dx");
+	    var_pf_mv_dy	= NSEEL_VM_regvar(m_pf_eel, "mv_dy");
+	    var_pf_mv_l		= NSEEL_VM_regvar(m_pf_eel, "mv_l");
+	    var_pf_mv_r		= NSEEL_VM_regvar(m_pf_eel, "mv_r");
+	    var_pf_mv_g		= NSEEL_VM_regvar(m_pf_eel, "mv_g");
+	    var_pf_mv_b		= NSEEL_VM_regvar(m_pf_eel, "mv_b");
+	    var_pf_mv_a		= NSEEL_VM_regvar(m_pf_eel, "mv_a");
+	    var_pf_monitor  = NSEEL_VM_regvar(m_pf_eel, "monitor");
+	    var_pf_echo_zoom   = NSEEL_VM_regvar(m_pf_eel, "echo_zoom");
+	    var_pf_echo_alpha  = NSEEL_VM_regvar(m_pf_eel, "echo_alpha");
+	    var_pf_echo_orient = NSEEL_VM_regvar(m_pf_eel, "echo_orient");
+        var_pf_wave_usedots  = NSEEL_VM_regvar(m_pf_eel, "wave_usedots");
+        var_pf_wave_thick    = NSEEL_VM_regvar(m_pf_eel, "wave_thick");
+        var_pf_wave_additive = NSEEL_VM_regvar(m_pf_eel, "wave_additive");
+        var_pf_wave_brighten = NSEEL_VM_regvar(m_pf_eel, "wave_brighten");
+        var_pf_darken_center = NSEEL_VM_regvar(m_pf_eel, "darken_center");
+        var_pf_gamma         = NSEEL_VM_regvar(m_pf_eel, "gamma");
+        var_pf_wrap          = NSEEL_VM_regvar(m_pf_eel, "wrap");
+        var_pf_invert        = NSEEL_VM_regvar(m_pf_eel, "invert");
+        var_pf_brighten      = NSEEL_VM_regvar(m_pf_eel, "brighten");
+        var_pf_darken        = NSEEL_VM_regvar(m_pf_eel, "darken");
+        var_pf_solarize      = NSEEL_VM_regvar(m_pf_eel, "solarize");
+        var_pf_meshx         = NSEEL_VM_regvar(m_pf_eel, "meshx");
+        var_pf_meshy         = NSEEL_VM_regvar(m_pf_eel, "meshy");
 
-	    resetVars(NULL);
 
 	    // this is the list of variables that can be used for a PER-VERTEX calculation:
 	    // ('vertex' meaning a vertex on the mesh) (as opposed to a once-per-frame calculation)
 	    
-        resetVars(m_pv_vars);
+        NSEEL_VM_resetvars(m_pv_eel);
 
-        var_pv_zoom		= registerVar("zoom");		// i/o
-	    var_pv_zoomexp  = registerVar("zoomexp");	// i/o
-	    var_pv_rot		= registerVar("rot");		// i/o
-	    var_pv_warp		= registerVar("warp");		// i/o
-	    var_pv_cx		= registerVar("cx");		// i/o
-	    var_pv_cy		= registerVar("cy");		// i/o
-	    var_pv_dx		= registerVar("dx");		// i/o
-	    var_pv_dy		= registerVar("dy");		// i/o
-	    var_pv_sx		= registerVar("sx");		// i/o
-	    var_pv_sy		= registerVar("sy");		// i/o
-	    var_pv_time		= registerVar("time");		// i
-	    var_pv_fps 		= registerVar("fps");		// i
-	    var_pv_bass		= registerVar("bass");		// i
-	    var_pv_mid		= registerVar("mid");		// i
-	    var_pv_treb		= registerVar("treb");		// i
-	    var_pv_bass_att	= registerVar("bass_att");	// i
-	    var_pv_mid_att	= registerVar("mid_att");	// i
-	    var_pv_treb_att	= registerVar("treb_att");	// i
-	    var_pv_frame    = registerVar("frame");
-	    var_pv_x		= registerVar("x");			// i
-	    var_pv_y		= registerVar("y");			// i
-	    var_pv_rad		= registerVar("rad");		// i
-	    var_pv_ang		= registerVar("ang");		// i
-	    var_pv_q1       = registerVar("q1");
-	    var_pv_q2       = registerVar("q2");
-	    var_pv_q3       = registerVar("q3");
-	    var_pv_q4       = registerVar("q4");
-	    var_pv_q5       = registerVar("q5");
-	    var_pv_q6       = registerVar("q6");
-	    var_pv_q7       = registerVar("q7");
-	    var_pv_q8       = registerVar("q8");
-	    var_pv_progress = registerVar("progress");
-        var_pv_meshx    = registerVar("meshx");
-        var_pv_meshy    = registerVar("meshy");
-	    resetVars(NULL);
+        var_pv_zoom		= NSEEL_VM_regvar(m_pv_eel, "zoom");		// i/o
+	    var_pv_zoomexp  = NSEEL_VM_regvar(m_pv_eel, "zoomexp");	// i/o
+	    var_pv_rot		= NSEEL_VM_regvar(m_pv_eel, "rot");		// i/o
+	    var_pv_warp		= NSEEL_VM_regvar(m_pv_eel, "warp");		// i/o
+	    var_pv_cx		= NSEEL_VM_regvar(m_pv_eel, "cx");		// i/o
+	    var_pv_cy		= NSEEL_VM_regvar(m_pv_eel, "cy");		// i/o
+	    var_pv_dx		= NSEEL_VM_regvar(m_pv_eel, "dx");		// i/o
+	    var_pv_dy		= NSEEL_VM_regvar(m_pv_eel, "dy");		// i/o
+	    var_pv_sx		= NSEEL_VM_regvar(m_pv_eel, "sx");		// i/o
+	    var_pv_sy		= NSEEL_VM_regvar(m_pv_eel, "sy");		// i/o
+	    var_pv_time		= NSEEL_VM_regvar(m_pv_eel, "time");		// i
+	    var_pv_fps 		= NSEEL_VM_regvar(m_pv_eel, "fps");		// i
+	    var_pv_bass		= NSEEL_VM_regvar(m_pv_eel, "bass");		// i
+	    var_pv_mid		= NSEEL_VM_regvar(m_pv_eel, "mid");		// i
+	    var_pv_treb		= NSEEL_VM_regvar(m_pv_eel, "treb");		// i
+	    var_pv_bass_att	= NSEEL_VM_regvar(m_pv_eel, "bass_att");	// i
+	    var_pv_mid_att	= NSEEL_VM_regvar(m_pv_eel, "mid_att");	// i
+	    var_pv_treb_att	= NSEEL_VM_regvar(m_pv_eel, "treb_att");	// i
+	    var_pv_frame    = NSEEL_VM_regvar(m_pv_eel, "frame");
+	    var_pv_x		= NSEEL_VM_regvar(m_pv_eel, "x");			// i
+	    var_pv_y		= NSEEL_VM_regvar(m_pv_eel, "y");			// i
+	    var_pv_rad		= NSEEL_VM_regvar(m_pv_eel, "rad");		// i
+	    var_pv_ang		= NSEEL_VM_regvar(m_pv_eel, "ang");		// i
+	    var_pv_q1       = NSEEL_VM_regvar(m_pv_eel, "q1");
+	    var_pv_q2       = NSEEL_VM_regvar(m_pv_eel, "q2");
+	    var_pv_q3       = NSEEL_VM_regvar(m_pv_eel, "q3");
+	    var_pv_q4       = NSEEL_VM_regvar(m_pv_eel, "q4");
+	    var_pv_q5       = NSEEL_VM_regvar(m_pv_eel, "q5");
+	    var_pv_q6       = NSEEL_VM_regvar(m_pv_eel, "q6");
+	    var_pv_q7       = NSEEL_VM_regvar(m_pv_eel, "q7");
+	    var_pv_q8       = NSEEL_VM_regvar(m_pv_eel, "q8");
+	    var_pv_progress = NSEEL_VM_regvar(m_pv_eel, "progress");
+        var_pv_meshx    = NSEEL_VM_regvar(m_pv_eel, "meshx");
+        var_pv_meshy    = NSEEL_VM_regvar(m_pv_eel, "meshy");
     }
 
     if (flags & RECOMPILE_WAVE_CODE)
     {
         for (int i=0; i<MAX_CUSTOM_WAVES; i++)
         {
-	        resetVars(m_wave[i].m_pf_vars);
-	        m_wave[i].var_pf_time		= registerVar("time");		// i
-	        m_wave[i].var_pf_fps 		= registerVar("fps");		// i
-	        m_wave[i].var_pf_frame      = registerVar("frame");     // i
-	        m_wave[i].var_pf_progress   = registerVar("progress");  // i
-	        m_wave[i].var_pf_q1         = registerVar("q1");        // i
-	        m_wave[i].var_pf_q2         = registerVar("q2");        // i
-	        m_wave[i].var_pf_q3         = registerVar("q3");        // i
-	        m_wave[i].var_pf_q4         = registerVar("q4");        // i
-	        m_wave[i].var_pf_q5         = registerVar("q5");        // i
-	        m_wave[i].var_pf_q6         = registerVar("q6");        // i
-	        m_wave[i].var_pf_q7         = registerVar("q7");        // i
-	        m_wave[i].var_pf_q8         = registerVar("q8");        // i
-	        m_wave[i].var_pf_t1         = registerVar("t1");        // i/o
-	        m_wave[i].var_pf_t2         = registerVar("t2");        // i/o
-	        m_wave[i].var_pf_t3         = registerVar("t3");        // i/o
-	        m_wave[i].var_pf_t4         = registerVar("t4");        // i/o
-	        m_wave[i].var_pf_t5         = registerVar("t5");        // i/o
-	        m_wave[i].var_pf_t6         = registerVar("t6");        // i/o
-	        m_wave[i].var_pf_t7         = registerVar("t7");        // i/o
-	        m_wave[i].var_pf_t8         = registerVar("t8");        // i/o
-	        m_wave[i].var_pf_bass		= registerVar("bass");		// i
-	        m_wave[i].var_pf_mid		= registerVar("mid");		// i
-	        m_wave[i].var_pf_treb		= registerVar("treb");		// i
-	        m_wave[i].var_pf_bass_att	= registerVar("bass_att");	// i
-	        m_wave[i].var_pf_mid_att	= registerVar("mid_att");	// i
-	        m_wave[i].var_pf_treb_att	= registerVar("treb_att");	// i
-	        m_wave[i].var_pf_r          = registerVar("r");         // i/o
-	        m_wave[i].var_pf_g          = registerVar("g");         // i/o
-	        m_wave[i].var_pf_b          = registerVar("b");         // i/o
-	        m_wave[i].var_pf_a          = registerVar("a");         // i/o
-	        resetVars(NULL);
+          NSEEL_VM_resetvars(m_wave[i].m_pf_eel);
+	        m_wave[i].var_pf_time		= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "time");		// i
+	        m_wave[i].var_pf_fps 		= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "fps");		// i
+	        m_wave[i].var_pf_frame      = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "frame");     // i
+	        m_wave[i].var_pf_progress   = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "progress");  // i
+	        m_wave[i].var_pf_q1         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q1");        // i
+	        m_wave[i].var_pf_q2         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q2");        // i
+	        m_wave[i].var_pf_q3         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q3");        // i
+	        m_wave[i].var_pf_q4         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q4");        // i
+	        m_wave[i].var_pf_q5         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q5");        // i
+	        m_wave[i].var_pf_q6         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q6");        // i
+	        m_wave[i].var_pf_q7         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q7");        // i
+	        m_wave[i].var_pf_q8         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "q8");        // i
+	        m_wave[i].var_pf_t1         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t1");        // i/o
+	        m_wave[i].var_pf_t2         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t2");        // i/o
+	        m_wave[i].var_pf_t3         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t3");        // i/o
+	        m_wave[i].var_pf_t4         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t4");        // i/o
+	        m_wave[i].var_pf_t5         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t5");        // i/o
+	        m_wave[i].var_pf_t6         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t6");        // i/o
+	        m_wave[i].var_pf_t7         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t7");        // i/o
+	        m_wave[i].var_pf_t8         = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "t8");        // i/o
+	        m_wave[i].var_pf_bass		= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "bass");		// i
+	        m_wave[i].var_pf_mid		= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "mid");		// i
+	        m_wave[i].var_pf_treb		= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "treb");		// i
+	        m_wave[i].var_pf_bass_att	= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "bass_att");	// i
+	        m_wave[i].var_pf_mid_att	= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "mid_att");	// i
+	        m_wave[i].var_pf_treb_att	= NSEEL_VM_regvar(m_wave[i].m_pf_eel, "treb_att");	// i
+	        m_wave[i].var_pf_r          = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "r");         // i/o
+	        m_wave[i].var_pf_g          = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "g");         // i/o
+	        m_wave[i].var_pf_b          = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "b");         // i/o
+	        m_wave[i].var_pf_a          = NSEEL_VM_regvar(m_wave[i].m_pf_eel, "a");         // i/o
 
-	        resetVars(m_wave[i].m_pp_vars);
-	        m_wave[i].var_pp_time		= registerVar("time");		// i
-	        m_wave[i].var_pp_fps 		= registerVar("fps");		// i
-	        m_wave[i].var_pp_frame      = registerVar("frame");     // i
-	        m_wave[i].var_pp_progress   = registerVar("progress");  // i
-	        m_wave[i].var_pp_q1         = registerVar("q1");        // i
-	        m_wave[i].var_pp_q2         = registerVar("q2");        // i
-	        m_wave[i].var_pp_q3         = registerVar("q3");        // i
-	        m_wave[i].var_pp_q4         = registerVar("q4");        // i
-	        m_wave[i].var_pp_q5         = registerVar("q5");        // i
-	        m_wave[i].var_pp_q6         = registerVar("q6");        // i
-	        m_wave[i].var_pp_q7         = registerVar("q7");        // i
-	        m_wave[i].var_pp_q8         = registerVar("q8");        // i
-	        m_wave[i].var_pp_t1         = registerVar("t1");        // i
-	        m_wave[i].var_pp_t2         = registerVar("t2");        // i
-	        m_wave[i].var_pp_t3         = registerVar("t3");        // i
-	        m_wave[i].var_pp_t4         = registerVar("t4");        // i
-	        m_wave[i].var_pp_t5         = registerVar("t5");        // i
-	        m_wave[i].var_pp_t6         = registerVar("t6");        // i
-	        m_wave[i].var_pp_t7         = registerVar("t7");        // i
-	        m_wave[i].var_pp_t8         = registerVar("t8");        // i
-	        m_wave[i].var_pp_bass		= registerVar("bass");		// i
-	        m_wave[i].var_pp_mid		= registerVar("mid");		// i
-	        m_wave[i].var_pp_treb		= registerVar("treb");		// i
-	        m_wave[i].var_pp_bass_att	= registerVar("bass_att");	// i
-	        m_wave[i].var_pp_mid_att	= registerVar("mid_att");	// i
-	        m_wave[i].var_pp_treb_att	= registerVar("treb_att");	// i
-            m_wave[i].var_pp_sample     = registerVar("sample");    // i
-            m_wave[i].var_pp_value1     = registerVar("value1");    // i
-            m_wave[i].var_pp_value2     = registerVar("value2");    // i
-	        m_wave[i].var_pp_x          = registerVar("x");         // i/o
-	        m_wave[i].var_pp_y          = registerVar("y");         // i/o
-	        m_wave[i].var_pp_r          = registerVar("r");         // i/o
-	        m_wave[i].var_pp_g          = registerVar("g");         // i/o
-	        m_wave[i].var_pp_b          = registerVar("b");         // i/o
-	        m_wave[i].var_pp_a          = registerVar("a");         // i/o
-	        resetVars(NULL);
+          NSEEL_VM_resetvars(m_wave[i].m_pp_eel);
+	        m_wave[i].var_pp_time		= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "time");		// i
+	        m_wave[i].var_pp_fps 		= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "fps");		// i
+	        m_wave[i].var_pp_frame      = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "frame");     // i
+	        m_wave[i].var_pp_progress   = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "progress");  // i
+	        m_wave[i].var_pp_q1         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q1");        // i
+	        m_wave[i].var_pp_q2         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q2");        // i
+	        m_wave[i].var_pp_q3         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q3");        // i
+	        m_wave[i].var_pp_q4         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q4");        // i
+	        m_wave[i].var_pp_q5         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q5");        // i
+	        m_wave[i].var_pp_q6         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q6");        // i
+	        m_wave[i].var_pp_q7         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q7");        // i
+	        m_wave[i].var_pp_q8         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "q8");        // i
+	        m_wave[i].var_pp_t1         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t1");        // i
+	        m_wave[i].var_pp_t2         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t2");        // i
+	        m_wave[i].var_pp_t3         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t3");        // i
+	        m_wave[i].var_pp_t4         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t4");        // i
+	        m_wave[i].var_pp_t5         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t5");        // i
+	        m_wave[i].var_pp_t6         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t6");        // i
+	        m_wave[i].var_pp_t7         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t7");        // i
+	        m_wave[i].var_pp_t8         = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "t8");        // i
+	        m_wave[i].var_pp_bass		= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "bass");		// i
+	        m_wave[i].var_pp_mid		= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "mid");		// i
+	        m_wave[i].var_pp_treb		= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "treb");		// i
+	        m_wave[i].var_pp_bass_att	= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "bass_att");	// i
+	        m_wave[i].var_pp_mid_att	= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "mid_att");	// i
+	        m_wave[i].var_pp_treb_att	= NSEEL_VM_regvar(m_wave[i].m_pp_eel, "treb_att");	// i
+            m_wave[i].var_pp_sample     = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "sample");    // i
+            m_wave[i].var_pp_value1     = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "value1");    // i
+            m_wave[i].var_pp_value2     = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "value2");    // i
+	        m_wave[i].var_pp_x          = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "x");         // i/o
+	        m_wave[i].var_pp_y          = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "y");         // i/o
+	        m_wave[i].var_pp_r          = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "r");         // i/o
+	        m_wave[i].var_pp_g          = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "g");         // i/o
+	        m_wave[i].var_pp_b          = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "b");         // i/o
+	        m_wave[i].var_pp_a          = NSEEL_VM_regvar(m_wave[i].m_pp_eel, "a");         // i/o
         }
     }
 
@@ -274,56 +287,55 @@ void CState::RegisterBuiltInVariables(int flags)
     {
         for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
         {
-	        resetVars(m_shape[i].m_pf_vars);
-	        m_shape[i].var_pf_time		= registerVar("time");		// i
-	        m_shape[i].var_pf_fps 		= registerVar("fps");		// i
-	        m_shape[i].var_pf_frame      = registerVar("frame");     // i
-	        m_shape[i].var_pf_progress   = registerVar("progress");  // i
-	        m_shape[i].var_pf_q1         = registerVar("q1");        // i
-	        m_shape[i].var_pf_q2         = registerVar("q2");        // i
-	        m_shape[i].var_pf_q3         = registerVar("q3");        // i
-	        m_shape[i].var_pf_q4         = registerVar("q4");        // i
-	        m_shape[i].var_pf_q5         = registerVar("q5");        // i
-	        m_shape[i].var_pf_q6         = registerVar("q6");        // i
-	        m_shape[i].var_pf_q7         = registerVar("q7");        // i
-	        m_shape[i].var_pf_q8         = registerVar("q8");        // i
-	        m_shape[i].var_pf_t1         = registerVar("t1");        // i/o
-	        m_shape[i].var_pf_t2         = registerVar("t2");        // i/o
-	        m_shape[i].var_pf_t3         = registerVar("t3");        // i/o
-	        m_shape[i].var_pf_t4         = registerVar("t4");        // i/o
-	        m_shape[i].var_pf_t5         = registerVar("t5");        // i/o
-	        m_shape[i].var_pf_t6         = registerVar("t6");        // i/o
-	        m_shape[i].var_pf_t7         = registerVar("t7");        // i/o
-	        m_shape[i].var_pf_t8         = registerVar("t8");        // i/o
-	        m_shape[i].var_pf_bass		= registerVar("bass");		// i
-	        m_shape[i].var_pf_mid		= registerVar("mid");		// i
-	        m_shape[i].var_pf_treb		= registerVar("treb");		// i
-	        m_shape[i].var_pf_bass_att	= registerVar("bass_att");	// i
-	        m_shape[i].var_pf_mid_att	= registerVar("mid_att");	// i
-	        m_shape[i].var_pf_treb_att	= registerVar("treb_att");	// i
-	        m_shape[i].var_pf_x          = registerVar("x");         // i/o
-	        m_shape[i].var_pf_y          = registerVar("y");         // i/o
-	        m_shape[i].var_pf_rad        = registerVar("rad");         // i/o
-	        m_shape[i].var_pf_ang        = registerVar("ang");         // i/o
-	        m_shape[i].var_pf_tex_ang    = registerVar("tex_ang");         // i/o
-	        m_shape[i].var_pf_tex_zoom   = registerVar("tex_zoom");         // i/o
-	        m_shape[i].var_pf_sides      = registerVar("sides");         // i/o
-	        m_shape[i].var_pf_textured   = registerVar("textured");         // i/o
-	        m_shape[i].var_pf_additive   = registerVar("additive");         // i/o
-	        m_shape[i].var_pf_thick      = registerVar("thick");         // i/o
-	        m_shape[i].var_pf_r          = registerVar("r");         // i/o
-	        m_shape[i].var_pf_g          = registerVar("g");         // i/o
-	        m_shape[i].var_pf_b          = registerVar("b");         // i/o
-	        m_shape[i].var_pf_a          = registerVar("a");         // i/o
-	        m_shape[i].var_pf_r2         = registerVar("r2");         // i/o
-	        m_shape[i].var_pf_g2         = registerVar("g2");         // i/o
-	        m_shape[i].var_pf_b2         = registerVar("b2");         // i/o
-	        m_shape[i].var_pf_a2         = registerVar("a2");         // i/o
-	        m_shape[i].var_pf_border_r   = registerVar("border_r");         // i/o
-	        m_shape[i].var_pf_border_g   = registerVar("border_g");         // i/o
-	        m_shape[i].var_pf_border_b   = registerVar("border_b");         // i/o
-	        m_shape[i].var_pf_border_a   = registerVar("border_a");         // i/o
-	        resetVars(NULL);
+          NSEEL_VM_resetvars(m_shape[i].m_pf_eel);
+	        m_shape[i].var_pf_time		= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "time");		// i
+	        m_shape[i].var_pf_fps 		= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "fps");		// i
+	        m_shape[i].var_pf_frame      = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "frame");     // i
+	        m_shape[i].var_pf_progress   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "progress");  // i
+	        m_shape[i].var_pf_q1         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q1");        // i
+	        m_shape[i].var_pf_q2         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q2");        // i
+	        m_shape[i].var_pf_q3         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q3");        // i
+	        m_shape[i].var_pf_q4         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q4");        // i
+	        m_shape[i].var_pf_q5         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q5");        // i
+	        m_shape[i].var_pf_q6         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q6");        // i
+	        m_shape[i].var_pf_q7         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q7");        // i
+	        m_shape[i].var_pf_q8         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "q8");        // i
+	        m_shape[i].var_pf_t1         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t1");        // i/o
+	        m_shape[i].var_pf_t2         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t2");        // i/o
+	        m_shape[i].var_pf_t3         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t3");        // i/o
+	        m_shape[i].var_pf_t4         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t4");        // i/o
+	        m_shape[i].var_pf_t5         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t5");        // i/o
+	        m_shape[i].var_pf_t6         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t6");        // i/o
+	        m_shape[i].var_pf_t7         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t7");        // i/o
+	        m_shape[i].var_pf_t8         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "t8");        // i/o
+	        m_shape[i].var_pf_bass		= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "bass");		// i
+	        m_shape[i].var_pf_mid		= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "mid");		// i
+	        m_shape[i].var_pf_treb		= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "treb");		// i
+	        m_shape[i].var_pf_bass_att	= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "bass_att");	// i
+	        m_shape[i].var_pf_mid_att	= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "mid_att");	// i
+	        m_shape[i].var_pf_treb_att	= NSEEL_VM_regvar(m_shape[i].m_pf_eel, "treb_att");	// i
+	        m_shape[i].var_pf_x          = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "x");         // i/o
+	        m_shape[i].var_pf_y          = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "y");         // i/o
+	        m_shape[i].var_pf_rad        = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "rad");         // i/o
+	        m_shape[i].var_pf_ang        = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "ang");         // i/o
+	        m_shape[i].var_pf_tex_ang    = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "tex_ang");         // i/o
+	        m_shape[i].var_pf_tex_zoom   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "tex_zoom");         // i/o
+	        m_shape[i].var_pf_sides      = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "sides");         // i/o
+	        m_shape[i].var_pf_textured   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "textured");         // i/o
+	        m_shape[i].var_pf_additive   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "additive");         // i/o
+	        m_shape[i].var_pf_thick      = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "thick");         // i/o
+	        m_shape[i].var_pf_r          = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "r");         // i/o
+	        m_shape[i].var_pf_g          = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "g");         // i/o
+	        m_shape[i].var_pf_b          = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "b");         // i/o
+	        m_shape[i].var_pf_a          = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "a");         // i/o
+	        m_shape[i].var_pf_r2         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "r2");         // i/o
+	        m_shape[i].var_pf_g2         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "g2");         // i/o
+	        m_shape[i].var_pf_b2         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "b2");         // i/o
+	        m_shape[i].var_pf_a2         = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "a2");         // i/o
+	        m_shape[i].var_pf_border_r   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "border_r");         // i/o
+	        m_shape[i].var_pf_border_g   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "border_g");         // i/o
+	        m_shape[i].var_pf_border_b   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "border_b");         // i/o
+	        m_shape[i].var_pf_border_a   = NSEEL_VM_regvar(m_shape[i].m_pf_eel, "border_a");         // i/o
 
             /*
 	        resetVars(m_shape[i].m_pp_vars);
@@ -1267,12 +1279,12 @@ void CState::FreeVarsAndCode()
 	// free the compiled expressions
 	if (m_pf_codehandle)
 	{
-		freeCode(m_pf_codehandle);
-		m_pf_codehandle = NULL;
+    NSEEL_code_free(m_pf_codehandle);
+    m_pf_codehandle = NULL;
 	}
 	if (m_pp_codehandle)
 	{
-		freeCode(m_pp_codehandle);
+    NSEEL_code_free(m_pp_codehandle);
 		m_pp_codehandle = NULL;
 	}
 
@@ -1280,12 +1292,12 @@ void CState::FreeVarsAndCode()
     {
 	    if (m_wave[i].m_pf_codehandle)
         {
-            freeCode(m_wave[i].m_pf_codehandle);
+            NSEEL_code_free(m_wave[i].m_pf_codehandle);
             m_wave[i].m_pf_codehandle = NULL;
         }
 	    if (m_wave[i].m_pp_codehandle)
         {
-            freeCode(m_wave[i].m_pp_codehandle);
+            NSEEL_code_free(m_wave[i].m_pp_codehandle);
             m_wave[i].m_pp_codehandle = NULL;
         }
     }
@@ -1294,7 +1306,7 @@ void CState::FreeVarsAndCode()
     {
 	    if (m_shape[i].m_pf_codehandle)
         {
-            freeCode(m_shape[i].m_pf_codehandle);
+            NSEEL_code_free(m_shape[i].m_pf_codehandle);
             m_shape[i].m_pf_codehandle = NULL;
         }
 	    /*if (m_shape[i].m_pp_codehandle)
@@ -1309,18 +1321,18 @@ void CState::FreeVarsAndCode()
 	//m_szPerPixelExpr[0] = 0;
 
 	// free the old variable names & reregister the built-in variables (since they got nuked too)
-	memset(m_pv_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-	memset(m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-    for (int i=0; i<MAX_CUSTOM_WAVES; i++)
-    {
-	    memset(m_wave[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-	    memset(m_wave[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-    }
-    for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
-    {
-	    memset(m_shape[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-	    //memset(m_shape[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-    }
+	//memset(m_pv_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+	//memset(m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+  //  for (int i=0; i<MAX_CUSTOM_WAVES; i++)
+  //  {
+	//    memset(m_wave[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+	//    memset(m_wave[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+  //  }
+  //  for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
+  //  {
+	//    memset(m_shape[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+	//    //memset(m_shape[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+  //  }
 	RegisterBuiltInVariables(0xFFFFFFFF);
 }
 
@@ -1366,12 +1378,12 @@ void CState::RecompileExpressions(int flags, int bReInit)
     {
 	    if (m_pf_codehandle)
 	    {
-		    freeCode(m_pf_codehandle);
-		    m_pf_codehandle = NULL;
+        NSEEL_code_free(m_pf_codehandle);
+        m_pf_codehandle = NULL;
 	    }
 	    if (m_pp_codehandle)
 	    {
-		    freeCode(m_pp_codehandle);
+        NSEEL_code_free(m_pp_codehandle);
 		    m_pp_codehandle = NULL;
 	    }
     }
@@ -1381,12 +1393,12 @@ void CState::RecompileExpressions(int flags, int bReInit)
         {
 		    if (m_wave[i].m_pf_codehandle)
 		    {
-			    freeCode(m_wave[i].m_pf_codehandle);
+          NSEEL_code_free(m_wave[i].m_pf_codehandle);
 			    m_wave[i].m_pf_codehandle = NULL;
 		    }
 		    if (m_wave[i].m_pp_codehandle)
 		    {
-			    freeCode(m_wave[i].m_pp_codehandle);
+          NSEEL_code_free(m_wave[i].m_pp_codehandle);
 			    m_wave[i].m_pp_codehandle = NULL;
 		    }
         }
@@ -1397,7 +1409,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
         {
 		    if (m_shape[i].m_pf_codehandle)
 		    {
-			    freeCode(m_shape[i].m_pf_codehandle);
+          NSEEL_code_free(m_shape[i].m_pf_codehandle);
 			    m_shape[i].m_pf_codehandle = NULL;
 		    }
 		    /*if (m_shape[i].m_pp_codehandle)
@@ -1411,27 +1423,27 @@ void CState::RecompileExpressions(int flags, int bReInit)
     // if we're recompiling init code, clear vars to zero, and re-register built-in variables.
 	if (bReInit)
 	{
-        if (flags & RECOMPILE_PRESET_CODE)
-        {
-    		memset(m_pv_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-		    memset(m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-        }
-        if (flags & RECOMPILE_WAVE_CODE)
-        {
-            for (int i=0; i<MAX_CUSTOM_WAVES; i++)
-            {
-	            memset(m_wave[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-	            memset(m_wave[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-            }
-        }
-        if (flags & RECOMPILE_SHAPE_CODE)
-        {
-            for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
-            {
-	            memset(m_shape[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-	            //memset(m_shape[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
-            }
-        }
+        //if (flags & RECOMPILE_PRESET_CODE)
+        //{
+    		//memset(m_pv_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+		    //memset(m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+        //}
+        //if (flags & RECOMPILE_WAVE_CODE)
+        //{
+        //    for (int i=0; i<MAX_CUSTOM_WAVES; i++)
+        //    {
+	      //      memset(m_wave[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+	      //      memset(m_wave[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+        //    }
+        //}
+        //if (flags & RECOMPILE_SHAPE_CODE)
+        //{
+        //    for (int i=0; i<MAX_CUSTOM_SHAPES; i++)
+        //    {
+	      //      memset(m_shape[i].m_pf_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+	      //      //memset(m_shape[i].m_pp_vars, 0, sizeof(varType)*EVAL_MAX_VARS);
+        //    }
+        //}
 		RegisterBuiltInVariables(flags);
 	}
 
@@ -1484,36 +1496,28 @@ void CState::RecompileExpressions(int flags, int bReInit)
 
         if (flags & RECOMPILE_PRESET_CODE)
         {
-	        resetVars(m_pf_vars);
-
             // 1. compile AND EXECUTE preset init code
-		    StripLinefeedCharsAndComments(m_szPerFrameInit, buf);
+		      StripLinefeedCharsAndComments(m_szPerFrameInit, buf);
 	        if (buf[0] && bReInit)
 	        {
-		        int	pf_codehandle_init;	
+            NSEEL_CODEHANDLE	pf_codehandle_init;
 
-			    if ( ! (pf_codehandle_init = compileCode(buf)))
+			    if (!(pf_codehandle_init = NSEEL_code_compile(m_pf_eel, buf)))
 			    {
 				    sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in 'per_frame_init' code", m_szDesc);
 				    g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
 
-				    q_values_after_init_code[0] = 0;
-				    q_values_after_init_code[1] = 0;
-				    q_values_after_init_code[2] = 0;
-				    q_values_after_init_code[3] = 0;
-				    q_values_after_init_code[4] = 0;
-				    q_values_after_init_code[5] = 0;
-				    q_values_after_init_code[6] = 0;
-				    q_values_after_init_code[7] = 0;
-                    monitor_after_init_code = 0;
+            for (int vi = 0; vi<8; vi++)
+              q_values_after_init_code[vi] = 0;
+            monitor_after_init_code = 0;
 			    }
 			    else
 			    {
 				    // now execute the code, save the values of q1..q8, and clean up the code!
 
-                    g_plugin->LoadPerFrameEvallibVars(g_plugin->m_pState);
+            g_plugin->LoadPerFrameEvallibVars(g_plugin->m_pState);
 
-				    executeCode(pf_codehandle_init);
+				    NSEEL_code_execute(pf_codehandle_init);
 
 				    q_values_after_init_code[0] = *var_pf_q1;
 				    q_values_after_init_code[1] = *var_pf_q2;
@@ -1523,39 +1527,34 @@ void CState::RecompileExpressions(int flags, int bReInit)
 				    q_values_after_init_code[5] = *var_pf_q6;
 				    q_values_after_init_code[6] = *var_pf_q7;
 				    q_values_after_init_code[7] = *var_pf_q8;
-                    monitor_after_init_code = *var_pf_monitor;
+            monitor_after_init_code = *var_pf_monitor;
 
-				    freeCode(pf_codehandle_init);
+				    NSEEL_code_free(pf_codehandle_init);
 				    pf_codehandle_init = NULL;
 			    }
-	        }
+	      }
 
             // 2. compile preset per-frame code
             StripLinefeedCharsAndComments(m_szPerFrameExpr, buf);
 	        if (buf[0])
 	        {
-			    if ( ! (m_pf_codehandle = compileCode(buf)))
+			    if ( ! (m_pf_codehandle = NSEEL_code_compile(m_pf_eel, buf)))
 			    {
 				    sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in 'per_frame' code", m_szDesc);
 				    g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
 			    }
 	        }
 
-	        resetVars(NULL);
-    	    resetVars(m_pv_vars);
-
             // 3. compile preset per-pixel code
 		    StripLinefeedCharsAndComments(m_szPerPixelExpr, buf);
 	        if (buf[0])
 	        {
-			    if ( ! (m_pp_codehandle = compileCode(buf)))
+			    if ( ! (m_pp_codehandle = NSEEL_code_compile(m_pv_eel, buf)))
 			    {
 				    sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in 'per_pixel' code", m_szDesc);
 				    g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
 			    }
 	        }
-	        
-            resetVars(NULL);
         }
 
         if (flags & RECOMPILE_WAVE_CODE)
@@ -1566,10 +1565,9 @@ void CState::RecompileExpressions(int flags, int bReInit)
 		        StripLinefeedCharsAndComments(m_wave[i].m_szInit, buf);
 	            if (buf[0] && bReInit)
                 {
-                    resetVars(m_wave[i].m_pf_vars);
 		            {
-		                int	codehandle_temp;	
-			            if ( ! (codehandle_temp = compileCode(buf)))
+                      NSEEL_CODEHANDLE	codehandle_temp;
+			            if ( ! (codehandle_temp = NSEEL_code_compile(m_wave[i].m_pf_eel, buf)))
 			            {
 				            sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in wave %d init code", m_szDesc, i);
 				            g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
@@ -1597,7 +1595,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
                     
                             g_plugin->LoadCustomWavePerFrameEvallibVars(g_plugin->m_pState, i);
 
-				            executeCode(codehandle_temp);
+                            NSEEL_code_execute(codehandle_temp);
 
 				            m_wave[i].t_values_after_init_code[0] = *m_wave[i].var_pf_t1;
 				            m_wave[i].t_values_after_init_code[1] = *m_wave[i].var_pf_t2;
@@ -1608,37 +1606,32 @@ void CState::RecompileExpressions(int flags, int bReInit)
 				            m_wave[i].t_values_after_init_code[6] = *m_wave[i].var_pf_t7;
 				            m_wave[i].t_values_after_init_code[7] = *m_wave[i].var_pf_t8;
 
-				            freeCode(codehandle_temp);
+                    NSEEL_code_free(codehandle_temp);
 				            codehandle_temp = NULL;
 			            }
 		            }
-                    resetVars(NULL);
                 }
 
                 // 2. compile custom waveform per-frame code
 		        StripLinefeedCharsAndComments(m_wave[i].m_szPerFrame, buf);
 	            if (buf[0])
                 {
-                    resetVars(m_wave[i].m_pf_vars);
-			        if ( ! (m_wave[i].m_pf_codehandle = compileCode(buf)))
+			        if ( ! (m_wave[i].m_pf_codehandle = NSEEL_code_compile(m_wave[i].m_pf_eel, buf)))
 			        {
 				        sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in wave %d per-frame code", m_szDesc, i);
 				        g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
 			        }
-                    resetVars(NULL);
                 }
 
                 // 3. compile custom waveform per-point code
 		        StripLinefeedCharsAndComments(m_wave[i].m_szPerPoint, buf);
 	            if (buf[0])
                 {
-                    resetVars(m_wave[i].m_pp_vars);
-			        if ( ! (m_wave[i].m_pp_codehandle = compileCode(buf)))
+			        if ( ! (m_wave[i].m_pp_codehandle = NSEEL_code_compile(m_wave[i].m_pp_eel, buf)))
 			        {
 				        sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in wave %d per-point code", m_szDesc, i);
 				        g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
 			        }
-                    resetVars(NULL);
                 }
             }
         }
@@ -1651,11 +1644,10 @@ void CState::RecompileExpressions(int flags, int bReInit)
 		        StripLinefeedCharsAndComments(m_shape[i].m_szInit, buf);
 	            if (buf[0] && bReInit)
                 {
-                    resetVars(m_shape[i].m_pf_vars);
 		            #ifndef _NO_EXPR_
 		            {
-		                int	codehandle_temp;	
-			            if ( ! (codehandle_temp = compileCode(buf)))
+                      NSEEL_CODEHANDLE	codehandle_temp;
+			            if ( ! (codehandle_temp = NSEEL_code_compile(m_shape[i].m_pf_eel, buf)))
 			            {
 				            sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in shape %d init code", m_szDesc, i);
 				            g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
@@ -1683,7 +1675,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
                     
                             g_plugin->LoadCustomShapePerFrameEvallibVars(g_plugin->m_pState, i);
 
-				            executeCode(codehandle_temp);
+                            NSEEL_code_execute(codehandle_temp);
 
                             m_shape[i].t_values_after_init_code[0] = *m_shape[i].var_pf_t1;
 				            m_shape[i].t_values_after_init_code[1] = *m_shape[i].var_pf_t2;
@@ -1694,27 +1686,24 @@ void CState::RecompileExpressions(int flags, int bReInit)
 				            m_shape[i].t_values_after_init_code[6] = *m_shape[i].var_pf_t7;
 				            m_shape[i].t_values_after_init_code[7] = *m_shape[i].var_pf_t8;
 
-				            freeCode(codehandle_temp);
+                    NSEEL_code_free(codehandle_temp);
 				            codehandle_temp = NULL;
 			            }
 		            }
 		            #endif
-                    resetVars(NULL);
                 }
 
                 // 2. compile custom shape per-frame code
 		        StripLinefeedCharsAndComments(m_shape[i].m_szPerFrame, buf);
 	            if (buf[0])
                 {
-                    resetVars(m_shape[i].m_pf_vars);
 		            #ifndef _NO_EXPR_
-			            if ( ! (m_shape[i].m_pf_codehandle = compileCode(buf)))
+			            if ( ! (m_shape[i].m_pf_codehandle = NSEEL_code_compile(m_shape[i].m_pf_eel, buf)))
 			            {
 				            sprintf(g_plugin->m_szUserMessage, "warning: preset \"%s\": error in shape %d per-frame code", m_szDesc, i);
 				            g_plugin->m_fShowUserMessageUntilThisTime = g_plugin->GetTime() + 6.0f;
 			            }
 		            #endif
-                    resetVars(NULL);
                 }
 
                 /*

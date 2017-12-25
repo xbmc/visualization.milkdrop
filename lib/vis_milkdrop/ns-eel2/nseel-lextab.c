@@ -1,13 +1,33 @@
 /*
- * Created by IBM PC LEX from file "scan.l"
- *	- for use with standard I/O
- */
+  Expression Evaluator Library (NS-EEL) v2
+  Copyright (C) 2004-2008 Cockos Incorporated
+  Copyright (C) 1999-2003 Nullsoft, Inc.
+  
+  nseel-lextab.c
 
-#include <stdio.h>
-#include "lex.h"
-#define LL16BIT int
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-int _lmovb(struct lextab *lp, int c, int st)
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+*/
+
+#include "ns-eel-int.h"
+
+
+#define LEXSKIP		(-1)
+
+static int _lmovb(struct lextab *lp, int c, int st)
 {
         int base;
 
@@ -24,37 +44,34 @@ int _lmovb(struct lextab *lp, int c, int st)
         return(lp->llnext[base]&0377);
 }
 
-int lexval;
-char lbuf[];
-
-#define YYSTYPE int
-#include "cal_tab.h"
-int c;
-
-extern YYSTYPE yylval;
-int translate(int type);
-void count(void);
-void setLastVar(void);
-int lookup(int *typeOfObject);
-
-
 #define INTCONST 1
 #define DBLCONST 2
 #define HEXCONST 3
 #define VARIABLE 4
 #define OTHER    5
 
-int _Alextab(__na__)		 
+static int _Alextab(compileContext *ctx, int __na__)		 
 {
-   if (__na__ >= 0 && __na__ <= 19) count();
+	// fucko: JF> 17 -> 19?
+  
+   if (__na__ >= 0 && __na__ <= 17) 
+	   nseel_count(ctx);
    switch (__na__)
    {
-      case 0:   yylval = translate(HEXCONST); return VALUE;
-      case 1:   yylval = translate(INTCONST); return VALUE; 
-      case 2:   yylval = translate(INTCONST); return VALUE; 
-      case 3:   yylval = translate(DBLCONST); return VALUE; 
+      case 0:           
+        *ctx->yytext = 0;
+        nseel_gettoken(ctx,ctx->yytext, sizeof(ctx->yytext));
+        if (ctx->yytext[0] < '0' || ctx->yytext[0] > '9') // not really a hex value, lame
+        {
+          nseel_setLastVar(ctx); ctx->yylval = nseel_lookup(ctx,&__na__); return __na__;
+        }
+        ctx->yylval = nseel_translate(ctx,HEXCONST); 
+      return VALUE;
+      case 1:   ctx->yylval = nseel_translate(ctx,INTCONST); return VALUE; 
+      case 2:   ctx->yylval = nseel_translate(ctx,INTCONST); return VALUE; 
+      case 3:   ctx->yylval = nseel_translate(ctx,DBLCONST); return VALUE; 
       case 4:
-      case 5:   setLastVar(); yylval = lookup(&__na__); return __na__;
+      case 5:   nseel_setLastVar(ctx); ctx->yylval = nseel_lookup(ctx,&__na__); return __na__;
       case 6:   return '+';
       case 7:   return '-';
       case 8:   return '*'; 
@@ -72,7 +89,7 @@ int _Alextab(__na__)
 }
 
 
-char _Flextab[] =
+static char _Flextab[] =
    {
    1, 18, 17, 16, 15, 14, 13, 12,
    11, 10, 9, 8, 7, 6, 4, 5,
@@ -82,7 +99,7 @@ char _Flextab[] =
    };
 
 
-char _Nlextab[] =
+static char _Nlextab[] =
    {
    36, 36, 36, 36, 36, 36, 36, 36,
    36, 1, 36, 36, 36, 36, 36, 36,
@@ -152,7 +169,7 @@ char _Nlextab[] =
    34, 34, 34, 36, 32,
    };
 
-char _Clextab[] =
+static char _Clextab[] =
    {
    -1, -1, -1, -1, -1, -1, -1, -1,
    -1, 0, -1, -1, -1, -1, -1, -1,
@@ -222,7 +239,7 @@ char _Clextab[] =
    33, 33, 33, -1, 33,
    };
 
-char _Dlextab[] =
+static char _Dlextab[] =
    {
    36, 36, 36, 36, 36, 36, 36, 36,
    36, 36, 36, 36, 36, 36, 36, 36,
@@ -231,7 +248,7 @@ char _Dlextab[] =
    36, 36, 33, 30,
    };
 
-int _Blextab[] =
+static int _Blextab[] =
    {
    0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 77, 152,
@@ -240,7 +257,7 @@ int _Blextab[] =
    0, 420, 0, 0, 0,
    };
 
-struct lextab lextab =	{
+struct lextab nseel_lextab =	{
 			36,		 
 			_Dlextab,	 
 			_Nlextab,	 
@@ -251,7 +268,7 @@ struct lextab lextab =	{
 			_Flextab,	 
 			_Alextab,	 
 
-			NULL,   	 
+			0,   	 
 			0,		 
 			0,		 
 			0,		 

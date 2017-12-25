@@ -1,38 +1,28 @@
 /*
-  LICENSE
-  -------
-Copyright 2005 Nullsoft, Inc.
-All rights reserved.
+  Expression Evaluator Library (NS-EEL) v2
+  Copyright (C) 2004-2008 Cockos Incorporated
+  Copyright (C) 1999-2003 Nullsoft, Inc.
+  
+  nseel-caltab.c
 
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-  * Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer. 
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
-  * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
-
-  * Neither the name of Nullsoft nor the names of its contributors may be used to 
-    endorse or promote products derived from this software without specific prior written permission. 
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <windows.h>
-//#include <xtl.h>
-#include <stdio.h>
-#include "Compiler.h"
-#include "eval.h"
+#include "ns-eel-int.h"
 
 #define	VALUE	258
 #define	IDENTIFIER	259
@@ -41,25 +31,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	FUNCTION3	262
 #define	UMINUS	263
 #define	UPLUS	264
-#define YYSTYPE int
 
-int yyerror(char *);
-int yylex(char **exp);
-
-extern int result;
+#define YYERROR(x) nseel_yyerror(ctx)
        
-typedef struct
-{
-  int timestamp;
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-  char *text;
-} yyltype;
-
-#define YYLTYPE yyltype
-
 #define	YYFINAL		51
 #define	YYFLAG		-32768
 #define	YYNTBASE	21
@@ -172,10 +146,9 @@ static const short yycheck[] = {     6,
     19,     8,     9,    10,    11,    12,    13,    14,    -1,    -1,
     -1,    -1,    19,     8,     9,    10,    11,    12,    13,    14
 };
-#define YYPURE 1
 
 #define yyerrok		(yyerrstatus = 0)
-#define yyclearin	(yychar = YYEMPTY)
+#define yyclearin	(ctx->yychar = YYEMPTY)
 #define YYEMPTY		-2
 #define YYEOF		0
 #define YYACCEPT	return(0)
@@ -184,25 +157,9 @@ static const short yycheck[] = {     6,
 #define YYTERROR	1
 #define YYERRCODE	256
 
-#ifndef YYIMPURE
-#define YYLEX		yylex(&exp)
-#endif
-
-#ifndef YYPURE
-#define YYLEX		yylex(&yylval)//, &yylloc) MY MODIF!
-#endif
+#define YYLEX		nseel_yylex(ctx,&exp)
 
 /* If nonreentrant, generate the variables here */
-
-#ifndef YYIMPURE
-
-int	yychar;			/*  the lookahead symbol		*/
-YYSTYPE	yylval;			/*  the semantic value of the		*/
-				/*  lookahead symbol			*/
-
-
-int yynerrs;			/*  number of parse errors so far       */
-#endif  /* YYIMPURE */
 
 /*  YYINITDEPTH indicates the initial size of the parser's stacks	*/
 
@@ -214,7 +171,7 @@ int yynerrs;			/*  number of parse errors so far       */
 #define __yy_bcopy(from,to,count) memcpy(to,from,(count)>0?(count):0)
 
 //#ln 131 "bison.simple"
-int yyparse(char *exp)
+int nseel_yyparse(compileContext *ctx, char *exp)
 {
   register int yystate;
   register int yyn;
@@ -231,23 +188,17 @@ int yyparse(char *exp)
 
   int yystacksize = YYINITDEPTH;
 
-#ifndef YYPURE
-  int yychar;
-  YYSTYPE yylval;
-  int yynerrs;
-#endif
-
   YYSTYPE yyval;		/*  the variable used to return		*/
 				/*  semantic values from the action	*/
 				/*  routines				*/
 
   int yylen;
 
-  yylval = 0;
+  ctx->yylval = 0;
   yystate = 0;
   yyerrstatus = 0;
-  yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
+  ctx->yynerrs = 0;
+  ctx->yychar = YYEMPTY;		/* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
@@ -267,15 +218,15 @@ yynewstate:
     {
       /* Give user a chance to reallocate the stack */
       /* Use copies of these so that the &'s don't force the real ones into memory. */
-      YYSTYPE *yyvs1 = yyvs;
-      short *yyss1 = yyss;
+//      YYSTYPE *yyvs1 = yyvs;
+  //    short *yyss1 = yyss;
 
       /* Get the current used size of the three stacks, in elements.  */
       int size = yyssp - yyss + 1;
 
       if (yystacksize >= YYMAXDEPTH)
     	{
-	      yyerror("internal error: parser stack overflow");
+	      YYERROR("internal error: parser stack overflow");
 	      return 2;
 	    }
 
@@ -304,23 +255,23 @@ yynewstate:
   /* yychar is either YYEMPTY or YYEOF
      or a valid token in external form.  */
 
-  if (yychar == YYEMPTY)
+  if (ctx->yychar == YYEMPTY)
     {
 //	yyStackSize = yyssp - (yyss - 1);
-	yychar = YYLEX;
+	ctx->yychar = YYLEX;
     }
 
   /* Convert token to internal form (in yychar1) for indexing tables with */
 
-  if (yychar <= 0)		/* This means end of input. */
+  if (ctx->yychar <= 0)		/* This means end of input. */
     {
       yychar1 = 0;
-      yychar = YYEOF;		/* Don't call YYLEX any more */
+      ctx->yychar = YYEOF;		/* Don't call YYLEX any more */
 
     }
   else
     {
-      yychar1 = YYTRANSLATE(yychar);
+      yychar1 = YYTRANSLATE(ctx->yychar);
 
     }
 
@@ -354,10 +305,10 @@ yynewstate:
 
 
   /* Discard the token being shifted unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
+  if (ctx->yychar != YYEOF)
+    ctx->yychar = YYEMPTY;
 
-  *++yyvsp = yylval;
+  *++yyvsp = ctx->yylval;
 
   /* count tokens shifted since error; after three, turn off error status.  */
   if (yyerrstatus) yyerrstatus--;
@@ -382,15 +333,16 @@ yyreduce:
 
 case 1:
 //#ln 32 "cal.y"
-{       yyval = yyvsp[0]; result = yyvsp[0];     ;
+{       yyval = yyvsp[0]; ctx->result = yyvsp[0];     ;
     break;}
 case 2:
 //#ln 34 "cal.y"
 {                                {
-                                 int i = (int)setVar((int)yyvsp[-2], 0);
-                                 int v = createCompiledValue(0, &(varTable[i].value));
-                                 yyval = createCompiledFunction2(MATH_SIMPLE, FN_ASSIGN, v, (int)yyvsp[0]);
-                                 result = yyval;
+                                 YYSTYPE i = nseel_setVar(ctx,yyvsp[-2]);
+                                 YYSTYPE v=nseel_getVar(ctx,i);
+
+                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_ASSIGN, v, yyvsp[0]);
+                                 ctx->result = yyval;
                                  }
                        ;
     break;}
@@ -400,7 +352,7 @@ case 3:
     break;}
 case 4:
 //#ln 55 "cal.y"
-{       yyval = getVar((int)yyvsp[0]);;
+{       yyval = nseel_getVar(ctx,yyvsp[0]);;
     break;}
 case 5:
 //#ln 57 "cal.y"
@@ -416,39 +368,39 @@ case 7:
     break;}
 case 8:
 //#ln 66 "cal.y"
-{                                 yyval = createCompiledFunction2(MATH_SIMPLE, FN_MULTIPLY, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_MULTIPLY, yyvsp[-2], yyvsp[0]);
     break;}
 case 9:
 //#ln 72 "cal.y"
-{                                 yyval = createCompiledFunction2(MATH_SIMPLE, FN_DIVIDE, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_DIVIDE, yyvsp[-2], yyvsp[0]);
     break;}
 case 10:
 //#ln 78 "cal.y"
-{                                  yyval = createCompiledFunction2(MATH_SIMPLE, FN_MODULO, yyvsp[-2], yyvsp[0]);
+{                                  yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_MODULO, yyvsp[-2], yyvsp[0]);
     break;}
 case 11:
 //#ln 84 "cal.y"
-{                                 yyval = createCompiledFunction2(MATH_SIMPLE, FN_ADD, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_ADD, yyvsp[-2], yyvsp[0]);
     break;}
 case 12:
 //#ln 90 "cal.y"
-{                                 yyval = createCompiledFunction2(MATH_SIMPLE, FN_SUB, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_SUB, yyvsp[-2], yyvsp[0]);
     break;}
 case 13:
 //#ln 96 "cal.y"
-{                                  yyval = createCompiledFunction2(MATH_SIMPLE, FN_AND, yyvsp[-2], yyvsp[0]);
+{                                  yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_AND, yyvsp[-2], yyvsp[0]);
     break;}
 case 14:
 //#ln 102 "cal.y"
-{                                  yyval = createCompiledFunction2(MATH_SIMPLE, FN_OR, yyvsp[-2], yyvsp[0]);
+{                                  yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_OR, yyvsp[-2], yyvsp[0]);
     break;}
 case 15:
 //#ln 108 "cal.y"
-{                                  yyval = createCompiledFunction1(MATH_SIMPLE, FN_UMINUS, yyvsp[0]);
+{                                  yyval = nseel_createCompiledFunction1(ctx,MATH_SIMPLE, FN_UMINUS, yyvsp[0]);
     break;}
 case 16:
 //#ln 114 "cal.y"
-{                                 yyval = createCompiledFunction1(MATH_SIMPLE, FN_UPLUS, yyvsp[0]);
+{                                 yyval = nseel_createCompiledFunction1(ctx,MATH_SIMPLE, FN_UPLUS, yyvsp[0]);
     break;}
 case 17:
 //#ln 120 "cal.y"
@@ -456,15 +408,15 @@ case 17:
     break;}
 case 18:
 //#ln 125 "cal.y"
-{                                  yyval = createCompiledFunction1(MATH_FN, (int)yyvsp[-3], yyvsp[-1]);
+{                                  yyval = nseel_createCompiledFunction1(ctx,MATH_FN, yyvsp[-3], yyvsp[-1]);
     break;}
 case 19:
 //#ln 131 "cal.y"
-{                                 yyval = createCompiledFunction2(MATH_FN, (int)yyvsp[-5], yyvsp[-3], yyvsp[-1]);
+{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_FN, yyvsp[-5], yyvsp[-3], yyvsp[-1]);
     break;}
 case 20:
 //#ln 137 "cal.y"
-{                                 yyval = createCompiledFunction3(MATH_FN, (int)yyvsp[-7], yyvsp[-5], yyvsp[-3], yyvsp[-1]);
+{                                 yyval = nseel_createCompiledFunction3(ctx,MATH_FN, yyvsp[-7], yyvsp[-5], yyvsp[-3], yyvsp[-1]);
     break;}
 }
    /* the action file gets copied in in place of this dollarsign */
@@ -496,7 +448,7 @@ yyerrlab:   /* here on detecting error */
   if (! yyerrstatus)
     /* If not already recovering from an error, report this error.  */
     {
-      ++yynerrs;
+      ++ctx->yynerrs;
 
 #ifdef YYERROR_VERBOSE
       yyn = yypact[yystate];
@@ -527,12 +479,12 @@ yyerrlab:   /* here on detecting error */
 		    count++;
 		  }
 	    }
-	  yyerror(msg);
+	  YYERROR(msg);
 	  free(msg);
 	}
       else
 #endif /* YYERROR_VERBOSE */
-	yyerror("syntax error");
+	YYERROR("syntax error");
     }
 
 //yyerrlab1:   /* here on error raised explicitly by an action */
@@ -542,9 +494,9 @@ yyerrlab:   /* here on detecting error */
       /* if just tried and failed to reuse lookahead token after an error, discard it.  */
 
       /* return failure if at end of input */
-      if (yychar == YYEOF) YYABORT;
+      if (ctx->yychar == YYEOF) YYABORT;
 
-      yychar = YYEMPTY;
+      ctx->yychar = YYEMPTY;
     }
 
   /* Else will try to reuse lookahead token
@@ -594,7 +546,7 @@ yyerrhandle:
   if (yyn == YYFINAL)
     YYACCEPT;
 
-  *++yyvsp = yylval;
+  *++yyvsp = ctx->yylval;
 
   yystate = yyn;
   goto yynewstate;

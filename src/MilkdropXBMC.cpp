@@ -87,6 +87,8 @@ void SetPresetDir(const char *pack)
     if (g_plugin->m_pPresetAddr)
     {
       g_plugin->m_bHoldPreset = lastLockedStatus;
+      if (lastPresetIndx < 0 || lastPresetIndx >(g_plugin->m_nPresets - g_plugin->m_nDirs))
+        lastPresetIndx = 0;
       g_plugin->m_nCurrentPreset = lastPresetIndx;
       strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);
       strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
