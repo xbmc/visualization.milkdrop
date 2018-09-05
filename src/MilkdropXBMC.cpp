@@ -150,13 +150,13 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
     g_plugin->PluginPreInitialize(0, 0);
   }
 
-  g_plugin->m_fBlendTimeAuto = kodi::GetSettingInt("Automatic Blend Time") + 1;
-  g_plugin->m_fTimeBetweenPresets = kodi::GetSettingInt("Time Between Presets") * 5 + 5;
-  g_plugin->m_fTimeBetweenPresetsRand = kodi::GetSettingInt("Additional Random Time") * 5 + 5;
+  g_plugin->m_fBlendTimeAuto = kodi::GetSettingFloat("Automatic Blend Time") + 1;
+  g_plugin->m_fTimeBetweenPresets = kodi::GetSettingFloat("Time Between Presets") * 5 + 5;
+  g_plugin->m_fTimeBetweenPresetsRand = kodi::GetSettingFloat("Additional Random Time") * 5 + 5;
   g_plugin->m_bHardCutsDisabled = !kodi::GetSettingBoolean("Enable Hard Cuts");
-  g_plugin->m_fHardCutLoudnessThresh = kodi::GetSettingInt("Loudness Threshold For Hard Cuts") / 5.0f + 1.25f;
-  g_plugin->m_fHardCutHalflife = kodi::GetSettingInt("Average Time Between Hard Cuts") * 5 + 5;
-  g_plugin->m_max_fps_fs = kodi::GetSettingInt("Maximum Refresh Rate") * 5 + 20;
+  g_plugin->m_fHardCutLoudnessThresh = kodi::GetSettingFloat("Loudness Threshold For Hard Cuts") / 5.0f + 1.25f;
+  g_plugin->m_fHardCutHalflife = kodi::GetSettingFloat("Average Time Between Hard Cuts") * 5 + 5;
+  g_plugin->m_max_fps_fs = kodi::GetSettingFloat("Maximum Refresh Rate") * 5 + 20;
   g_plugin->m_bAlways3D = kodi::GetSettingBoolean("Enable Stereo 3d");
   lastLockedStatus = kodi::GetSettingBoolean("lastlockedstatus");
   lastPresetIndx = kodi::GetSettingInt("lastpresetidx");

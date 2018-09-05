@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <settings>
     <setting id="lastpresetfolder" type="text" default="" visible="false" />
-    <setting id="lastpresetidx" type="integer" default="0" visible="false" />
+    <setting id="lastpresetidx" type="number" default="0" visible="false" />
     <setting id="lastlockedstatus" type="bool" default="false" visible="false" />
     <setting id="Preset Pack" type="enum" label="30009" lvalues="30020|30021|30022" default="0"/>
     <setting id="User Preset Folder" type="folder" visible="eq(-1,2)" source="" label="30010" default=""/>
