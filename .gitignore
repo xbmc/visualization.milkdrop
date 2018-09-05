@@ -1,6 +1,7 @@
 # build artifacts
 build/
 obj-x86_64-linux-gnu/
+lib/vis_milkdrop/*.inc
 visualization.*/addon.xml
 
 # commonly used editors
