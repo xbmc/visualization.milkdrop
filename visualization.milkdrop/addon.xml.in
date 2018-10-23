@@ -3,7 +3,7 @@
   id="visualization.milkdrop"
   version="2.0.0"
   name="MilkDrop"
-  provider-name="Team-Kodi">
+  provider-name="Team Kodi">
   <requires>@ADDON_DEPENDS@</requires>
   <extension
     point="xbmc.player.musicviz"
