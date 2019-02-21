@@ -483,7 +483,6 @@ Order of Function Calls
 #include <time.h>      // for time()
 //#include <commctrl.h>  // for sliders
 #include <assert.h>
-//#include "../XmlDocument.h"
 
 #include <kodi/Filesystem.h>
 

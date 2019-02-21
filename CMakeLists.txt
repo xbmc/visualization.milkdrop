@@ -15,10 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/lib
                     ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways (becomes done in future)
                     )
 
-set(MILKDROP_SOURCES src/MilkdropXBMC.cpp
-                     src/XmlDocument.cpp)
-
-set(MILKDROP_HEADERS src/XmlDocument.h)
+set(MILKDROP_SOURCES src/MilkdropXBMC.cpp)
 
 add_definitions(-DHAS_DX -D_CRT_SECURE_NO_WARNINGS)
 
