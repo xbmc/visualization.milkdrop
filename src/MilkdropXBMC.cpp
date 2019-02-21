@@ -20,7 +20,6 @@
 
 #include "vis_milkdrop/Plugin.h"
 #include <kodi/addon-instance/Visualization.h>
-#include "libXBMC_addon.h"
 #include "XmlDocument.h"
 #include <string>
 #include <direct.h>
