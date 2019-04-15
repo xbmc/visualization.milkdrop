@@ -1,1 +1,1 @@
-buildPlugin(platforms: ['windows-i686', 'windows-x86_64'])
+buildPlugin(version: "Leia", platforms: ['windows-i686', 'windows-x86_64'])
