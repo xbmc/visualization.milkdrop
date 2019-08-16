@@ -33,7 +33,7 @@ int lastPresetIndx = 0;
 char lastPresetDir[1024] = "";
 bool lastLockedStatus = false;
 
-class CVisualizationMilkdrop
+class ATTRIBUTE_HIDDEN CVisualizationMilkdrop
   : public kodi::addon::CAddonBase
   , public kodi::addon::CInstanceVisualization
 {
