@@ -1,8 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
 project(ns-eel2)
-
-enable_language(C)
-
-cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES ns-eel.h
             ns-eel-addfuncs.h
