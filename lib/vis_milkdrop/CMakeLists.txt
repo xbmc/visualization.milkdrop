@@ -1,8 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
 project(vis_milkdrop)
-
-enable_language(CXX)
-
-cmake_minimum_required(VERSION 2.6)
 
 include_directories(${PROJECT_SOURCE_DIR})
 
