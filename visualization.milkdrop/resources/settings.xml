@@ -1,17 +1,129 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<settings>
-    <setting id="lastpresetfolder" type="text" default="" visible="false" />
-    <setting id="lastpresetidx" type="number" default="0" visible="false" />
-    <setting id="lastlockedstatus" type="bool" default="false" visible="false" />
-    <setting id="Preset Pack" type="enum" label="30009" lvalues="30020|30021|30022" default="0"/>
-    <setting id="User Preset Folder" type="folder" visible="eq(-1,2)" source="" label="30010" default=""/>
-    <setting id="Preset Shuffle Mode" type="bool" label="30011" default="true"/>
-    <setting id="Automatic Blend Time" type="rangeofnum" label="30000" rangestart="1" rangeend="10" elements="10" valueformat="30050" default="0"/>
-    <setting id="Time Between Presets" type="rangeofnum" label="30001" rangestart="5" rangeend="50" elements="10" valueformat="30050" default="0"/>
-    <setting id="Additional Random Time" type="rangeofnum" label="30002" rangestart="5" rangeend="50" elements="10" valueformat="30050" default="0"/>
-    <setting id="Enable Hard Cuts" type="bool" label="30004" default="false"/>
-    <setting id="Loudness Threshold For Hard Cuts" type="rangeofnum" enable="eq(-1,true)" label="30005" rangestart="0" rangeend="100" elements="11" valueformat="30051" default="0"/>
-    <setting id="Average Time Between Hard Cuts" type="rangeofnum" enable="eq(-2,true)" label="30006" rangestart="5" rangeend="120" elements="24" valueformat="30050" default="0"/>
-    <setting id="Maximum Refresh Rate" type="rangeofnum" label="30007" rangestart="20" rangeend="60" elements="9" valueformat="30052" default="6"/>
-    <setting id="Enable Stereo 3d" type="bool" label="30008" default="false"/>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version="1">
+  <section id="addon">
+    <category id="main" label="128">
+      <group id="0">
+        <setting id="lastpresetfolder" type="string">
+          <visible>false</visible>
+          <default></default>
+        </setting>
+        <setting id="lastpresetidx" type="integer">
+          <visible>false</visible>
+          <default>0</default>
+        </setting>
+        <setting id="lastlockedstatus" type="boolean">
+          <visible>false</visible>
+          <default>false</default>
+        </setting>
+        <setting id="Preset Pack" type="integer" label="30009" help="0">
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30020">0</option>
+              <!-- WA51 Presets -->
+              <option label="30021">1</option>
+              <!-- Winamp Presets -->
+              <option label="30022">2</option>
+              <!-- User Defined Preset Folder -->
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="User Preset Folder" type="path" label="30010" help="0">
+          <default></default>
+          <dependencies>
+            <dependency type="visible" setting="Preset Pack" operator="is">2</dependency>
+          </dependencies>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="button" format="path" />
+        </setting>
+        <setting id="Preset Shuffle Mode" type="boolean" label="30011" help="0">
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="Automatic Blend Time" type="number" label="30000" help="0">
+          <default>1.0</default>
+          <constraints>
+            <minimum>1.0</minimum>
+            <step>1.0</step>
+            <maximum>10.0</maximum>
+          </constraints>
+          <control type="spinner" format="string">
+            <formatlabel>30050</formatlabel>
+          </control>
+        </setting>
+        <setting id="Time Between Presets" type="number" label="30001" help="0">
+          <default>5.0</default>
+          <constraints>
+            <minimum>5.0</minimum>
+            <step>0.5</step>
+            <maximum>10.0</maximum>
+          </constraints>
+          <control type="spinner" format="string">
+            <formatlabel>30050</formatlabel>
+          </control>
+        </setting>
+        <setting id="Additional Random Time" type="number" label="30002" help="0">
+          <default>5.0</default>
+          <constraints>
+            <minimum>5.0</minimum>
+            <step>0.5</step>
+            <maximum>10.0</maximum>
+          </constraints>
+          <control type="spinner" format="string">
+            <formatlabel>30050</formatlabel>
+          </control>
+        </setting>
+        <setting id="Enable Hard Cuts" type="boolean" label="30004" help="0">
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="Loudness Threshold For Hard Cuts" type="number" label="30005" help="0">
+          <default>0.0</default>
+          <constraints>
+            <minimum>0.0</minimum>
+            <step>10.0</step>
+            <maximum>100.0</maximum>
+          </constraints>
+          <dependencies>
+            <dependency type="enable" setting="Enable Hard Cuts" operator="is">true</dependency>
+          </dependencies>
+          <control type="spinner" format="string">
+            <formatlabel>30051</formatlabel>
+          </control>
+        </setting>
+        <setting id="Average Time Between Hard Cuts" type="number" label="30006" help="0">
+          <default>0.0</default>
+          <constraints>
+            <minimum>5.0</minimum>
+            <step>5.0</step>
+            <maximum>120.0</maximum>
+          </constraints>
+          <dependencies>
+            <dependency type="enable" setting="Enable Hard Cuts" operator="is">true</dependency>
+          </dependencies>
+          <control type="spinner" format="string">
+            <formatlabel>30050</formatlabel>
+          </control>
+        </setting>
+        <setting id="Maximum Refresh Rate" type="number" label="30007" help="0">
+          <default>30.0</default>
+          <constraints>
+            <minimum>20.0</minimum>
+            <step>5.0</step>
+            <maximum>60.0</maximum>
+          </constraints>
+          <control type="spinner" format="string">
+            <formatlabel>30052</formatlabel>
+          </control>
+        </setting>
+        <setting id="Enable Stereo 3d" type="boolean" label="30008" help="0">
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+      </group>
+    </category>
+  </section>
 </settings>
