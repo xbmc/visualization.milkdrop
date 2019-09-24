@@ -148,13 +148,13 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
     g_plugin->PluginPreInitialize(0, 0);
   }
 
-  g_plugin->m_fBlendTimeAuto = kodi::GetSettingFloat("Automatic Blend Time") + 1;
-  g_plugin->m_fTimeBetweenPresets = kodi::GetSettingFloat("Time Between Presets") * 5 + 5;
-  g_plugin->m_fTimeBetweenPresetsRand = kodi::GetSettingFloat("Additional Random Time") * 5 + 5;
+  g_plugin->m_fBlendTimeAuto = kodi::GetSettingFloat("Automatic Blend Time");
+  g_plugin->m_fTimeBetweenPresets = kodi::GetSettingFloat("Time Between Presets");
+  g_plugin->m_fTimeBetweenPresetsRand = kodi::GetSettingFloat("Additional Random Time");
   g_plugin->m_bHardCutsDisabled = !kodi::GetSettingBoolean("Enable Hard Cuts");
-  g_plugin->m_fHardCutLoudnessThresh = kodi::GetSettingFloat("Loudness Threshold For Hard Cuts") / 5.0f + 1.25f;
-  g_plugin->m_fHardCutHalflife = kodi::GetSettingFloat("Average Time Between Hard Cuts") * 5 + 5;
-  g_plugin->m_max_fps_fs = kodi::GetSettingFloat("Maximum Refresh Rate") * 5 + 20;
+  g_plugin->m_fHardCutLoudnessThresh = kodi::GetSettingFloat("Loudness Threshold For Hard Cuts");
+  g_plugin->m_fHardCutHalflife = kodi::GetSettingFloat("Average Time Between Hard Cuts");
+  g_plugin->m_max_fps_fs = kodi::GetSettingFloat("Maximum Refresh Rate");
   g_plugin->m_bAlways3D = kodi::GetSettingBoolean("Enable Stereo 3d");
   lastLockedStatus = kodi::GetSettingBoolean("lastlockedstatus");
   lastPresetIndx = kodi::GetSettingInt("lastpresetidx");
@@ -311,19 +311,19 @@ ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName, 
     return ADDON_STATUS_UNKNOWN;
 
   if (settingName == "Automatic Blend Time")
-    g_plugin->m_fBlendTimeAuto = (float)(settingValue.GetInt() + 1);
+    g_plugin->m_fBlendTimeAuto = settingValue.GetFloat();
   else if (settingName == "Time Between Presets")
-    g_plugin->m_fTimeBetweenPresets = (float)(settingValue.GetInt() * 5 + 5);
+    g_plugin->m_fTimeBetweenPresets = settingValue.GetFloat();
   else if (settingName == "Additional Random Time")
-    g_plugin->m_fTimeBetweenPresetsRand = (float)(settingValue.GetInt() * 5 + 5);
+    g_plugin->m_fTimeBetweenPresetsRand = settingValue.GetFloat();
   else if (settingName == "Enable Hard Cuts")
     g_plugin->m_bHardCutsDisabled = !settingValue.GetBoolean();
   else if (settingName == "Loudness Threshold For Hard Cuts")
-    g_plugin->m_fHardCutLoudnessThresh = (float)(settingValue.GetInt() / 5.0f + 1.25f);
+    g_plugin->m_fHardCutLoudnessThresh = settingValue.GetFloat();
   else if (settingName == "Average Time Between Hard Cuts")
-    g_plugin->m_fHardCutHalflife = (float)settingValue.GetInt() * 5 + 5;
+    g_plugin->m_fHardCutHalflife = settingValue.GetFloat();
   else if (settingName == "Maximum Refresh Rate")
-    g_plugin->m_max_fps_fs = settingValue.GetInt() * 5 + 20;
+    g_plugin->m_max_fps_fs = settingValue.GetInt();
   else if (settingName == "Enable Stereo 3d")
     g_plugin->m_bAlways3D = settingValue.GetBoolean();
   else if (settingName == "lastlockedstatus")
