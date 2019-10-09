@@ -205,22 +205,22 @@ unsigned char waves[2][512];
 //-----------------------------------------------------------------------------
 void CVisualizationMilkdrop::AudioData(const float* pAudioData, int iAudioDataLength, float *pFreqData, int iFreqDataLength)
 {
-	int ipos=0;
-	while (ipos < 512)
-	{
-		for (int i=0; i < iAudioDataLength; i+=2)
-		{
+  int ipos=0;
+  while (ipos < 512)
+  {
+    for (int i=0; i < iAudioDataLength; i+=2)
+    {
       waves[0][ipos] = char (pAudioData[i] * 255.0f);
       waves[1][ipos] = char (pAudioData[i+1]  * 255.0f);
-			ipos++;
-			if (ipos >= 512) break;
-		}
-	}
+      ipos++;
+      if (ipos >= 512) break;
+    }
+  }
 }
 
 void CVisualizationMilkdrop::Render()
 {
-	g_plugin->PluginRender(waves[0], waves[1]);
+  g_plugin->PluginRender(waves[0], waves[1]);
 
 }
 
@@ -239,7 +239,7 @@ bool CVisualizationMilkdrop::PrevPreset()
 bool CVisualizationMilkdrop::LoadPreset(int select)
 {
   g_plugin->m_nCurrentPreset = select;
-  strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);	// note: m_szPresetDir always ends with '\'
+  strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);  // note: m_szPresetDir always ends with '\'
   strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
   g_plugin->LoadPreset(g_plugin->m_szCurrentPresetFile, g_plugin->m_fBlendTimeUser);
   return true;
@@ -256,9 +256,6 @@ bool CVisualizationMilkdrop::RandomPreset()
   g_plugin->LoadRandomPreset(g_plugin->m_fBlendTimeUser);
   return true;
 }
-
-void LoadSettings()
-{}
 
 //-- GetPresets ---------------------------------------------------------------
 // Return a list of presets to XBMC for display
