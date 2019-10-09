@@ -38,21 +38,21 @@ class CVisualizationMilkdrop
   , public kodi::addon::CInstanceVisualization
 {
 public:
-  virtual ~CVisualizationMilkdrop();
+  ~CVisualizationMilkdrop() override;
 
-  virtual ADDON_STATUS Create() override;
-  virtual void Stop() override;
-  virtual void Render() override;
-  virtual bool GetPresets(std::vector<std::string>& presets) override;
-  virtual int GetActivePreset() override;
-  virtual bool IsLocked() override;
-  virtual bool PrevPreset() override;
-  virtual bool NextPreset() override;
-  virtual bool LoadPreset(int select) override;
-  virtual bool RandomPreset() override;
-  virtual bool LockPreset(bool lockUnlock) override;
-  virtual void AudioData(const float* audioData, int audioDataLength, float *freqData, int freqDataLength) override;
-  virtual ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue) override;
+  ADDON_STATUS Create() override;
+  void Stop() override;
+  void Render() override;
+  bool GetPresets(std::vector<std::string>& presets) override;
+  int GetActivePreset() override;
+  bool IsLocked() override;
+  bool PrevPreset() override;
+  bool NextPreset() override;
+  bool LoadPreset(int select) override;
+  bool RandomPreset() override;
+  bool LockPreset(bool lockUnlock) override;
+  void AudioData(const float* audioData, int audioDataLength, float *freqData, int freqDataLength) override;
+  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue) override;
 };
 
 // Sets a new preset file or directory and make it active. Also recovers last state of the preset if it is the same as last time
