@@ -165,6 +165,7 @@ protected:
 	virtual LRESULT MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lParam) { return 0; };
 	virtual BOOL MyConfigTabProc(int nPage, HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) { return true;};
 
+    DXContext* m_lpDX;            // pointer to DXContext object
 //=====================================================================================================================
 private:
 
@@ -175,7 +176,6 @@ private:
     float        m_fps;             // current estimate of frames per second
     HWND         m_hWndWinamp;      // handle to Winamp window 
     HINSTANCE    m_hInstance;       // handle to application instance
-    DXContext*   m_lpDX;            // pointer to DXContext object
     char         m_szPluginsDirPath[MAX_PATH];  // usually 'c:\\program files\\winamp\\plugins\\'
     char         m_szConfigIniFile[MAX_PATH];   // usually 'c:\\program files\\winamp\\plugins\\something.ini' - filename is determined from identifiers in 'defines.h'
     ID3D11Device* m_device;

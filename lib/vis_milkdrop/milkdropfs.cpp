@@ -627,8 +627,8 @@ void CPlugin::RunPerFrameEquations()
 		*pState->var_pv_q8		    = *pState->var_pf_q8;
 
         // (a few range checks:)
-        *pState->var_pf_gamma     = max(0    , min(    8, *pState->var_pf_gamma    ));
-        *pState->var_pf_echo_zoom = max(0.001, min( 1000, *pState->var_pf_echo_zoom));
+        *pState->var_pf_gamma     = std::max(0.0    , std::min(    8.0, *pState->var_pf_gamma    ));
+        *pState->var_pf_echo_zoom = std::max(0.001, std::min( 1000.0, *pState->var_pf_echo_zoom));
 
 		if (m_pState->m_bRedBlueStereo || m_bAlways3D)
 		{
@@ -1562,7 +1562,7 @@ void CPlugin::WarpedBlitFromVS0ToVS1()
 				else
 				{
                     float mix2 = m_vertinfo[n].a*m_pState->m_fBlendProgress + m_vertinfo[n].c;//fCosineBlend2;
-                    mix2 = max(0,min(1,mix2));
+                    mix2 = std::max(0.0f,std::min(1.0f,mix2));
 					m_verts[n].tu = m_verts[n].tu*(mix2) + u*(1-mix2);
 					m_verts[n].tv = m_verts[n].tv*(mix2) + v*(1-mix2);
 				}
@@ -3279,7 +3279,7 @@ void CPlugin::ShowToUser(int bRedraw)
         
         for (int pass=0; pass<gamma_passes; pass++)
         {
-            float colormult = min(1,max(0, (fGammaAdj-pass) )) / 255.0f;
+            float colormult = std::min(1.0f,std::max(0.0f, (fGammaAdj-pass) )) / 255.0f;
 
 		    for (int rep=0; rep<2; rep++)
 		    {
