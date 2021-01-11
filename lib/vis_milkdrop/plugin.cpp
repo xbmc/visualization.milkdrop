@@ -1168,21 +1168,11 @@ int CPlugin::AllocateMyDX8Stuff()
 		    SafeRelease(m_lpVS[1]);
         SafeRelease(m_pZBuffer);
 
-        ID3D11Texture2D *pBackBuffer, *tmpSurface;
-        D3D11_TEXTURE2D_DESC tmpDesc;
-        D3D11_VIEWPORT pVP;
-
-        GetDevice()->GetRenderTarget(&pBackBuffer, &tmpSurface);
-        tmpSurface->GetDesc(&tmpDesc);
-        SafeRelease(pBackBuffer);
-        SafeRelease(tmpSurface);
-        GetDevice()->GetViewport(&pVP);
-
         //UINT uiwidth=(pVP.Width>m_nTexSize) ? pVP.Width : m_nTexSize;
         //UINT uiheight=(pVP.Height>m_nTexSize) ? pVP.Height:m_nTexSize;
-        // DX11: create depth stencil with same dimension as the backbuffer
-        printf("CreateDepthStencilSurface with %u x %u", tmpDesc.Width, tmpDesc.Height);
-        if (!GetDevice()->CreateTexture(tmpDesc.Width, tmpDesc.Height, 1, D3D11_BIND_DEPTH_STENCIL, DXGI_FORMAT_D24_UNORM_S8_UINT, &m_pZBuffer))
+        // DX11: create depth stencil with client dimension
+        printf("CreateDepthStencilSurface with %u x %u", m_lpDX->m_client_width, m_lpDX->m_client_height);
+        if (!GetDevice()->CreateTexture(m_lpDX->m_client_width, m_lpDX->m_client_height, 1, D3D11_BIND_DEPTH_STENCIL, DXGI_FORMAT_D24_UNORM_S8_UINT, &m_pZBuffer))
           printf("Can't create DepthStencilSurface");
 
 		    // create VS1 and VS2
@@ -5264,7 +5254,7 @@ void CPlugin::UpdatePresetRatings()
 
     int presets_per_frame = m_bInstaScan ? 4096 : 1;
     int k1 = m_nRatingReadProgress;
-    int k2 = min(m_nRatingReadProgress + presets_per_frame, m_nPresets);
+    int k2 = std::min(m_nRatingReadProgress + presets_per_frame, m_nPresets);
 	for (k=k1; k<k2; k++)
 	{
 		char szFullPath[512];

@@ -5,7 +5,7 @@
  *  See LICENSE.md for more information.
  */
 
-#include "vis_milkdrop/Plugin.h"
+#include "vis_milkdrop/plugin.h"
 #include <kodi/addon-instance/Visualization.h>
 #include <string>
 #include <direct.h>
