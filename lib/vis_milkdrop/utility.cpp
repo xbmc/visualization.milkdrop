@@ -28,14 +28,14 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+#include <kodi/Filesystem.h>
+
 #include "utility.h"
 #include <stdio.h>
 #include <math.h>
 #include <windows.h>
 //#include <xtl.h>
 #include <d3d9.h>
-
-#include <kodi/Filesystem.h>
 
 float PowCosineInterp(float x, float pow)
 {

@@ -472,6 +472,8 @@ Order of Function Calls
 
 */
 
+#include <kodi/Filesystem.h>
+
 #include "plugin.h"
 #include "utility.h"
 #include "support.h"
@@ -483,8 +485,6 @@ Order of Function Calls
 #include <time.h>      // for time()
 //#include <commctrl.h>  // for sliders
 #include <assert.h>
-
-#include <kodi/Filesystem.h>
 
 #define FRAND ((rand() % 7381)/7380.0f)
 #define strnicmp _strnicmp
