@@ -92,13 +92,13 @@ msgstr ""
 #setting value formats
 
 msgctxt "#30050"
-msgid "%2.0f secs"
+msgid "{0:.1f} secs"
 msgstr ""
 
 msgctxt "#30051"
-msgid "%2.0f %%"
+msgid "{0:.0f} %"
 msgstr ""
 
 msgctxt "#30052"
-msgid "%2.0f fps"
+msgid "{0:.0f} fps"
 msgstr ""
