@@ -1,1 +1,1 @@
-buildPlugin(version: "Matrix", platforms: ['windows-i686', 'windows-x86_64'])
+buildPlugin(version: "Nexus", platforms: ['windows-i686', 'windows-x86_64'])
