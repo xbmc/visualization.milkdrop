@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Main\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/xbmc/visualization.milkdrop/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2021-07-28 22:29+0000\n"
 "Last-Translator: Christian Gade <gade@kodi.tv>\n"
@@ -85,14 +85,28 @@ msgctxt "#30022"
 msgid "User Defined Preset Folder"
 msgstr "Dosar presetări definite de utilizator"
 
+# empty strings from id 30023 to 30049
+# setting value formats
 msgctxt "#30050"
-msgid "%2.0f secs"
-msgstr "%2.0f sec"
+msgid "{0:.1f} secs"
+msgstr ""
 
 msgctxt "#30051"
-msgid "%2.0f %%"
-msgstr "%2.0f %%"
+msgid "{0:.0f} %"
+msgstr ""
 
 msgctxt "#30052"
-msgid "%2.0f fps"
-msgstr "%2.0f fps"
+msgid "{0:.0f} fps"
+msgstr ""
+
+#~ msgctxt "#30050"
+#~ msgid "%2.0f secs"
+#~ msgstr "%2.0f sec"
+
+#~ msgctxt "#30051"
+#~ msgid "%2.0f %%"
+#~ msgstr "%2.0f %%"
+
+#~ msgctxt "#30052"
+#~ msgid "%2.0f fps"
+#~ msgstr "%2.0f fps"
