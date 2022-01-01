@@ -45,7 +45,7 @@ void urlEscape(std::string& str)
   replaceAll(str, "#",  "%23");
 }
 
-class ATTRIBUTE_HIDDEN CVisualizationMilkdrop
+class ATTR_DLL_LOCAL CVisualizationMilkdrop
   : public kodi::addon::CAddonBase
   , public kodi::addon::CInstanceVisualization
 {
@@ -64,7 +64,7 @@ public:
   bool RandomPreset() override;
   bool LockPreset(bool lockUnlock) override;
   void AudioData(const float* audioData, int audioDataLength, float *freqData, int freqDataLength) override;
-  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue) override;
+  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue) override;
 
 private:
   void SetPresetDir(const char *pack);
@@ -137,19 +137,19 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
     g_plugin->PluginPreInitialize(0, 0);
   }
 
-  g_plugin->m_fBlendTimeAuto = kodi::GetSettingFloat("Automatic Blend Time");
-  g_plugin->m_fTimeBetweenPresets = kodi::GetSettingFloat("Time Between Presets");
-  g_plugin->m_fTimeBetweenPresetsRand = kodi::GetSettingFloat("Additional Random Time");
-  g_plugin->m_bHardCutsDisabled = !kodi::GetSettingBoolean("Enable Hard Cuts");
-  g_plugin->m_fHardCutLoudnessThresh = kodi::GetSettingFloat("Loudness Threshold For Hard Cuts");
-  g_plugin->m_fHardCutHalflife = kodi::GetSettingFloat("Average Time Between Hard Cuts");
-  g_plugin->m_max_fps_fs = kodi::GetSettingFloat("Maximum Refresh Rate");
-  g_plugin->m_bAlways3D = kodi::GetSettingBoolean("Enable Stereo 3d");
-  m_lastLockedStatus = kodi::GetSettingBoolean("lastlockedstatus");
-  m_lastPresetIndx = kodi::GetSettingInt("lastpresetidx");
-  m_lastPresetDir = kodi::GetSettingString("lastpresetfolder");
-  g_plugin->m_bSequentialPresetOrder = !kodi::GetSettingBoolean("Preset Shuffle Mode");
-  switch (kodi::GetSettingInt("Preset Pack"))
+  g_plugin->m_fBlendTimeAuto = kodi::addon::GetSettingFloat("Automatic Blend Time");
+  g_plugin->m_fTimeBetweenPresets = kodi::addon::GetSettingFloat("Time Between Presets");
+  g_plugin->m_fTimeBetweenPresetsRand = kodi::addon::GetSettingFloat("Additional Random Time");
+  g_plugin->m_bHardCutsDisabled = !kodi::addon::GetSettingBoolean("Enable Hard Cuts");
+  g_plugin->m_fHardCutLoudnessThresh = kodi::addon::GetSettingFloat("Loudness Threshold For Hard Cuts");
+  g_plugin->m_fHardCutHalflife = kodi::addon::GetSettingFloat("Average Time Between Hard Cuts");
+  g_plugin->m_max_fps_fs = kodi::addon::GetSettingFloat("Maximum Refresh Rate");
+  g_plugin->m_bAlways3D = kodi::addon::GetSettingBoolean("Enable Stereo 3d");
+  m_lastLockedStatus = kodi::addon::GetSettingBoolean("lastlockedstatus");
+  m_lastPresetIndx = kodi::addon::GetSettingInt("lastpresetidx");
+  m_lastPresetDir = kodi::addon::GetSettingString("lastpresetfolder");
+  g_plugin->m_bSequentialPresetOrder = !kodi::addon::GetSettingBoolean("Preset Shuffle Mode");
+  switch (kodi::addon::GetSettingInt("Preset Pack"))
   {
     case 0:
       m_UserPackFolder = false;
@@ -163,7 +163,7 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
 
     case 2:
       m_UserPackFolder = true;
-      SetPresetDir(kodi::GetSettingString("User Preset Folder").c_str());
+      SetPresetDir(kodi::addon::GetSettingString("User Preset Folder").c_str());
       break;
   }
 
@@ -177,9 +177,9 @@ void CVisualizationMilkdrop::Stop()
 {
   if(g_plugin)
   {
-    kodi::SetSettingString("lastpresetfolder", g_plugin->m_szPresetDir);
-    kodi::SetSettingBoolean("lastlockedstatus", g_plugin->m_bHoldPreset);
-    kodi::SetSettingInt("lastpresetidx", g_plugin->m_nCurrentPreset);
+    kodi::addon::SetSettingString("lastpresetfolder", g_plugin->m_szPresetDir);
+    kodi::addon::SetSettingBoolean("lastlockedstatus", g_plugin->m_bHoldPreset);
+    kodi::addon::SetSettingInt("lastpresetidx", g_plugin->m_nCurrentPreset);
 
     g_plugin->PluginQuit();
     delete g_plugin;
@@ -291,7 +291,7 @@ CVisualizationMilkdrop::~CVisualizationMilkdrop()
 //-- UpdateSetting ------------------------------------------------------------
 // Handle setting change request from XBMC
 //-----------------------------------------------------------------------------
-ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue)
+ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue)
 {
   if (settingName.empty() || settingValue.empty() || !g_plugin)
     return ADDON_STATUS_UNKNOWN;
