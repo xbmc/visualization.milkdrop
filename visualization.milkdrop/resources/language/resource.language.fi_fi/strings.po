@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: XBMC Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-03-21 05:13+0000\n"
+"PO-Revision-Date: 2022-07-23 13:14+0000\n"
 "Last-Translator: Oskari Lavinto <olavinto@protonmail.com>\n"
 "Language-Team: Finnish <https://kodi.weblate.cloud/projects/kodi-add-ons-look-and-feel/visualization-milkdrop/fi_fi/>\n"
 "Language: fi_fi\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11.2\n"
+"X-Generator: Weblate 4.13\n"
 
 msgctxt "Addon Summary"
 msgid "MilkDrop takes you flying through the soundwaves you're hearing"
@@ -27,11 +27,11 @@ msgstr "MilkDrop oli alunperin Winamp-toistosovelluksen visualisointilisäosa. K
 
 msgctxt "#30000"
 msgid "Automatic Blend Time"
-msgstr "Automaattinen pehmennysaika"
+msgstr "Automaattinen sekoitusaika"
 
 msgctxt "#30001"
 msgid "Time Between Presets"
-msgstr "Esiasetusten välinen aika"
+msgstr "Esiasetusten vaihtoväli"
 
 msgctxt "#30002"
 msgid "Additional Random Time"
@@ -39,19 +39,19 @@ msgstr "Satunnainen lisäaika"
 
 msgctxt "#30003"
 msgid "Enable Anisotropic Filtering"
-msgstr "Anisotrooppinen suodatus käytössä"
+msgstr "Käytä anisotrooppista suodatusta"
 
 msgctxt "#30004"
 msgid "Enable Hard Cuts"
-msgstr "Voimakkaat leikkaukset käytössä"
+msgstr "Käytä kovia leikkauksia"
 
 msgctxt "#30005"
 msgid "Loudness Threshold For Hard Cuts"
-msgstr "Äänenvoimakkuuden kynnys"
+msgstr "Äänenvoimakkuuden kynnys koville leikkauksille"
 
 msgctxt "#30006"
 msgid "Average Time Between Hard Cuts"
-msgstr "Keskimääräinen väli"
+msgstr "Kovien leikkausten keskimääräinen väliaika"
 
 msgctxt "#30007"
 msgid "Maximum Refresh Rate"
@@ -59,7 +59,7 @@ msgstr "Suurin ruudunpäivitysnopeus"
 
 msgctxt "#30008"
 msgid "Enable Stereo 3D"
-msgstr "Stereo 3D käytössä"
+msgstr "Käytä stereoskooppista 3D-tilaa"
 
 msgctxt "#30009"
 msgid "Preset Pack"
@@ -67,11 +67,11 @@ msgstr "Esiasetuspaketti"
 
 msgctxt "#30010"
 msgid "User Preset Folder        "
-msgstr "Käyttäjän esiasetuskansio        "
+msgstr "Oma esiasetuskansio        "
 
 msgctxt "#30011"
 msgid "Preset Shuffle Mode"
-msgstr "Esiasetuksen sekoitustila"
+msgstr "Esiasetusten sekoitustila"
 
 msgctxt "#30020"
 msgid "WA51 Presets"
@@ -83,21 +83,21 @@ msgstr "Winamp-esiasetukset"
 
 msgctxt "#30022"
 msgid "User Defined Preset Folder"
-msgstr "Käyttäjän määrittämä esiasetuskansio"
+msgstr "Käyttäjän oma esiasetuskansio"
 
 # empty strings from id 30023 to 30049
 # setting value formats
 msgctxt "#30050"
 msgid "{0:.1f} secs"
-msgstr ""
+msgstr "{0:.1f} sekuntia"
 
 msgctxt "#30051"
 msgid "{0:.0f} %"
-msgstr ""
+msgstr "{0:.0f} %"
 
 msgctxt "#30052"
 msgid "{0:.0f} fps"
-msgstr ""
+msgstr "{0:.0f} fps"
 
 #~ msgctxt "#30050"
 #~ msgid "%2.0f secs"
