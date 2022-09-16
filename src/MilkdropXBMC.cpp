@@ -63,7 +63,7 @@ public:
   bool LoadPreset(int select) override;
   bool RandomPreset() override;
   bool LockPreset(bool lockUnlock) override;
-  void AudioData(const float* audioData, int audioDataLength, float *freqData, int freqDataLength) override;
+  void AudioData(const float* audioData, size_t audioDataLength) override;
   ADDON_STATUS SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue) override;
 
 private:
@@ -125,9 +125,9 @@ void CVisualizationMilkdrop::SetPresetDir(const char *pack)
 //-----------------------------------------------------------------------------
 ADDON_STATUS CVisualizationMilkdrop::Create()
 {
-  _mkdir(Profile().c_str());
+  _mkdir(kodi::addon::GetUserPath().c_str());
 
-  std::string presets = Presets().append("\\presets\\");
+  std::string presets = kodi::addon::GetAddonPath("\\presets\\");
   urlEscape(presets);
   m_presetsDir = "zip://" + presets;
 
@@ -192,7 +192,7 @@ unsigned char waves[2][512];
 //-- Audiodata ----------------------------------------------------------------
 // Called by XBMC to pass new audio data to the vis
 //-----------------------------------------------------------------------------
-void CVisualizationMilkdrop::AudioData(const float* pAudioData, int iAudioDataLength, float *pFreqData, int iFreqDataLength)
+void CVisualizationMilkdrop::AudioData(const float* pAudioData, size_t iAudioDataLength)
 {
   int ipos=0;
   while (ipos < 512)
