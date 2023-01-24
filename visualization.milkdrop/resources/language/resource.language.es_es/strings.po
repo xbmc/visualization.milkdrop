@@ -5,20 +5,21 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/visualization.milkdrop/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/xbmc-main/language/es/)\n"
-"Language: es\n"
+"PO-Revision-Date: 2023-01-24 20:15+0000\n"
+"Last-Translator: José Antonio Alvarado <jalvarado0.eses@gmail.com>\n"
+"Language-Team: Spanish (Spain) <https://kodi.weblate.cloud/projects/kodi-add-ons-look-and-feel/visualization-milkdrop/es_es/>\n"
+"Language: es_es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.15.1\n"
 
 msgctxt "Addon Summary"
 msgid "MilkDrop takes you flying through the soundwaves you're hearing"
-msgstr "MilkDrop te lleva volando a través de las ondas que estás escuchando"
+msgstr "MilkDrop te lleva volando a través de las ondas sonoras que estás escuchando"
 
 msgctxt "Addon Description"
 msgid "MilkDrop was originally a music visualiser \"plug-in\" to the Winamp music player. As you listen to your music, MilkDrop takes you flying through the actual soundwaves you're hearing, and uses beat detection to trigger myriad psychedelic effects, creating a rich visual journey through sound."
@@ -30,7 +31,7 @@ msgstr "Tiempo de mezcla automático"
 
 msgctxt "#30001"
 msgid "Time Between Presets"
-msgstr "Tiempo entre presets"
+msgstr "Tiempo entre ajustes preestablecidos"
 
 msgctxt "#30002"
 msgid "Additional Random Time"
@@ -62,41 +63,41 @@ msgstr "Habilitar Stereo 3D"
 
 msgctxt "#30009"
 msgid "Preset Pack"
-msgstr "Conjunto de presets"
+msgstr "Paquete de ajustes preestablecidos"
 
 msgctxt "#30010"
 msgid "User Preset Folder        "
-msgstr "Carpeta de presets de usuario"
+msgstr "Carpeta de ajustes preestablecidos        "
 
 msgctxt "#30011"
 msgid "Preset Shuffle Mode"
-msgstr "Modo aleatorio de presets"
+msgstr "Modo aleatorio de ajustes preestablecidos"
 
 msgctxt "#30020"
 msgid "WA51 Presets"
-msgstr "Presets WA51"
+msgstr "Ajustes preestablecidos WA51"
 
 msgctxt "#30021"
 msgid "Winamp Presets"
-msgstr "Presets Winamp"
+msgstr "Ajustes preestablecidos Winamp"
 
 msgctxt "#30022"
 msgid "User Defined Preset Folder"
-msgstr "Carpeta de presets definida por el usuario"
+msgstr "Carpeta de ajustes preestablecidos definida por el usuario"
 
 # empty strings from id 30023 to 30049
 # setting value formats
 msgctxt "#30050"
 msgid "{0:.1f} secs"
-msgstr ""
+msgstr "{0:.1f} segs"
 
 msgctxt "#30051"
 msgid "{0:.0f} %"
-msgstr ""
+msgstr "{0:.0f} %"
 
 msgctxt "#30052"
 msgid "{0:.0f} fps"
-msgstr ""
+msgstr "{0:.0f} fps"
 
 #~ msgctxt "#30050"
 #~ msgid "%2.0f secs"
