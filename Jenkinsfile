@@ -1,1 +1,1 @@
-buildPlugin(version: "Nexus", platforms: ['windows-i686', 'windows-x86_64'])
+buildPlugin(version: "Omega", platforms: ['windows-i686', 'windows-x86_64'])
