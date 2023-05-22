@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: XBMC Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-09-03 20:51+0000\n"
+"PO-Revision-Date: 2023-05-19 03:42+0000\n"
 "Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
 "Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-look-and-feel/visualization-milkdrop/it_it/>\n"
 "Language: it_it\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14\n"
+"X-Generator: Weblate 4.17\n"
 
 msgctxt "Addon Summary"
 msgid "MilkDrop takes you flying through the soundwaves you're hearing"
-msgstr "MilkDrop ti fa volare tra le onde sonore di ciò che stai ascoltando"
+msgstr "Con MilkDrop vivi un'esperienza di volo attraverso le onde sonore che stai ascoltando"
 
 msgctxt "Addon Description"
 msgid "MilkDrop was originally a music visualiser \"plug-in\" to the Winamp music player. As you listen to your music, MilkDrop takes you flying through the actual soundwaves you're hearing, and uses beat detection to trigger myriad psychedelic effects, creating a rich visual journey through sound."
-msgstr "MilkDrop era, in origine, un \"plug-in\" di visualizzazione per Winamp. Mentre ascolti la musica, MilkDrop ti fa volare tra le onde sonore di ciò che stai ascoltando usando la rilevazione del ritmo per sincronizzare una miriade di effetti psichedelici, creando un ricco viaggio visuale attraverso il suono."
+msgstr "MilkDrop era in origine un plugin di visualizzazione della musica per il lettore musicale Winamp. Mentre ascolti la tua musica, MilkDrop ti fa volare attraverso le reali onde sonore che stai ascoltando e utilizza la rilevazione del battito per attivare una moltitudine di effetti psichedelici, creando un ricco viaggio visivo attraverso il suono."
 
 msgctxt "#30000"
 msgid "Automatic Blend Time"
@@ -31,11 +31,11 @@ msgstr "Durata transizione automatica"
 
 msgctxt "#30001"
 msgid "Time Between Presets"
-msgstr "Tempo tra i preset"
+msgstr "Tempo tra le preimpostazioni"
 
 msgctxt "#30002"
 msgid "Additional Random Time"
-msgstr "Tempo aggiuntivo casuale"
+msgstr "Tempo casuale aggiuntivo"
 
 msgctxt "#30003"
 msgid "Enable Anisotropic Filtering"
@@ -63,27 +63,27 @@ msgstr "Abilita Stereo 3D"
 
 msgctxt "#30009"
 msgid "Preset Pack"
-msgstr "Raccolta preset"
+msgstr "Raccolta preimpostazioni"
 
 msgctxt "#30010"
 msgid "User Preset Folder        "
-msgstr "Cartella preset dell'utente        "
+msgstr "Cartella preimpostazioni utente        "
 
 msgctxt "#30011"
 msgid "Preset Shuffle Mode"
-msgstr "Modalità preset casuale"
+msgstr "Modalità preimpostazione casuale"
 
 msgctxt "#30020"
 msgid "WA51 Presets"
-msgstr "Preset WA51"
+msgstr "Preimpostazioni WA51"
 
 msgctxt "#30021"
 msgid "Winamp Presets"
-msgstr "Preset di Winamp"
+msgstr "Preimpostazioni di Winamp"
 
 msgctxt "#30022"
 msgid "User Defined Preset Folder"
-msgstr "Cartella preset definita dall'utente"
+msgstr "Cartella preimpostazioni definita dall'utente"
 
 # empty strings from id 30023 to 30049
 # setting value formats
