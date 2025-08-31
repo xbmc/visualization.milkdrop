@@ -5,97 +5,98 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/visualization.milkdrop/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-08-31 13:29+0000\n"
+"Last-Translator: SecularSteve <fairfull.playing@gmail.com>\n"
+"Language-Team: Bosnian (Bosnia and Herzegovina) <https://kodi.weblate.cloud/projects/kodi-add-ons-look-and-feel/visualization-milkdrop/bs_ba/>\n"
 "Language: bs_ba\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.13\n"
 
 msgctxt "Addon Summary"
 msgid "MilkDrop takes you flying through the soundwaves you're hearing"
-msgstr ""
+msgstr "MilkDrop vas vodi u let kroz zvučne valove koje čujete"
 
 msgctxt "Addon Description"
 msgid "MilkDrop was originally a music visualiser \"plug-in\" to the Winamp music player. As you listen to your music, MilkDrop takes you flying through the actual soundwaves you're hearing, and uses beat detection to trigger myriad psychedelic effects, creating a rich visual journey through sound."
-msgstr ""
+msgstr "MilkDrop je prvobitno bio dodatak za vizualizaciju muzike za Winamp muzički plejer. Dok slušate muziku, MilkDrop vas vodi kroz stvarne zvučne talase koje čujete i koristi detekciju ritma kako bi pokrenuo mnoštvo psihodeličnih efekata, stvarajući bogato vizuelno putovanje kroz zvuk."
 
 # settings labels
 msgctxt "#30000"
 msgid "Automatic Blend Time"
-msgstr ""
+msgstr "Automatsko vrijeme miješanja"
 
 msgctxt "#30001"
 msgid "Time Between Presets"
-msgstr ""
+msgstr "Vrijeme između unaprijed postavljenih postavki"
 
 msgctxt "#30002"
 msgid "Additional Random Time"
-msgstr ""
+msgstr "Dodatno nasumično vrijeme"
 
 msgctxt "#30003"
 msgid "Enable Anisotropic Filtering"
-msgstr ""
+msgstr "Omogući anizotropno filtriranje"
 
 msgctxt "#30004"
 msgid "Enable Hard Cuts"
-msgstr ""
+msgstr "Omogući tvrde rezove"
 
 msgctxt "#30005"
 msgid "Loudness Threshold For Hard Cuts"
-msgstr ""
+msgstr "Prag glasnoće za teške rezove"
 
 msgctxt "#30006"
 msgid "Average Time Between Hard Cuts"
-msgstr ""
+msgstr "Prosječno vrijeme između teških prekida"
 
 msgctxt "#30007"
 msgid "Maximum Refresh Rate"
-msgstr ""
+msgstr "Maksimalna brzina osvježavanja"
 
 msgctxt "#30008"
 msgid "Enable Stereo 3D"
-msgstr ""
+msgstr "Omogući stereo 3D"
 
 msgctxt "#30009"
 msgid "Preset Pack"
-msgstr ""
+msgstr "Paket unaprijed postavljenih postavki"
 
 msgctxt "#30010"
 msgid "User Preset Folder        "
-msgstr ""
+msgstr "Korisnička mapa unaprijed postavljenih postavki        "
 
 msgctxt "#30011"
 msgid "Preset Shuffle Mode"
-msgstr ""
+msgstr "Unaprijed postavljeni način rada nasumične reprodukcije"
 
 # empty strings from id 30012 to 30019
 msgctxt "#30020"
 msgid "WA51 Presets"
-msgstr ""
+msgstr "WA51 Presetovi"
 
 msgctxt "#30021"
 msgid "Winamp Presets"
-msgstr ""
+msgstr "Winamp preseti"
 
 msgctxt "#30022"
 msgid "User Defined Preset Folder"
-msgstr ""
+msgstr "Korisnički definirana unaprijed postavljena mapa"
 
 # empty strings from id 30023 to 30049
 # setting value formats
 msgctxt "#30050"
 msgid "{0:.1f} secs"
-msgstr ""
+msgstr "{0:.1f} sekundi"
 
 msgctxt "#30051"
 msgid "{0:.0f} %"
-msgstr ""
+msgstr "{0:.0f} %"
 
 msgctxt "#30052"
 msgid "{0:.0f} fps"
-msgstr ""
+msgstr "{0:.0f} fps"
