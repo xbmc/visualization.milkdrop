@@ -52,10 +52,10 @@ class ATTR_DLL_LOCAL CVisualizationMilkdrop : public kodi::addon::CAddonBase,
                                               public kodi::addon::CInstanceVisualization
 {
 public:
-  ~CVisualizationMilkdrop() override;
+  ~CVisualizationMilkdrop() override = default;
 
-  ADDON_STATUS Create() override;
-  void Stop() override;
+  bool Init() override;
+  void DeInit() override;
   void Render() override;
   bool GetPresets(std::vector<std::string>& presets) override;
   int GetActivePreset() override;
@@ -126,7 +126,7 @@ void CVisualizationMilkdrop::SetPresetDir(const char* pack)
 // Called on load. Addon should fully initalize or return error status
 // !!! Add-on master function !!!
 //-----------------------------------------------------------------------------
-ADDON_STATUS CVisualizationMilkdrop::Create()
+bool CVisualizationMilkdrop::Init()
 {
   _mkdir(kodi::addon::GetUserPath().c_str());
 
@@ -173,12 +173,15 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
 
   if (!g_plugin || !g_plugin->PluginInitialize(static_cast<ID3D11DeviceContext*>(Device()), X(),
                                                Y(), Width(), Height(), PixelRatio()))
-    return ADDON_STATUS_UNKNOWN;
+  {
+    kodi::Log(ADDON_LOG_ERROR, "Failed to initialize Milkdrop");
+    return false;
+  }
 
-  return ADDON_STATUS_OK;
+  return true;
 }
 
-void CVisualizationMilkdrop::Stop()
+void CVisualizationMilkdrop::DeInit()
 {
   if (g_plugin)
   {
@@ -283,15 +286,6 @@ bool CVisualizationMilkdrop::IsLocked()
     return g_plugin->m_bHoldPreset;
   else
     return false;
-}
-
-//-- Destroy-------------------------------------------------------------------
-// Do everything before unload of this add-on
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-CVisualizationMilkdrop::~CVisualizationMilkdrop()
-{
-  Stop();
 }
 
 //-- UpdateSetting ------------------------------------------------------------
