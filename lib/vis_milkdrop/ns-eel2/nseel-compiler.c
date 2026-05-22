@@ -22,16 +22,21 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#if _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1
+#define _CRT_NONSTDC_NO_WARNINGS 1
+#endif
+
 #include "ns-eel-int.h"
 
-#include "../denormal.h"
+//#include "../denormal.h"
 
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
 #include <ctype.h>
 
-#include "../wdlcstring.h"
+//#include "../wdlcstring.h"
 
 #if !defined(EEL_TARGET_PORTABLE) && !defined(_WIN32)
 #include <sys/mman.h>
@@ -2095,7 +2100,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
                 if (a) 
                 {
 #ifdef GLUE_MOD_IS_64
-                  ret = ((WDL_INT64) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
+                  ret = ((int64_t) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
 #else
                   ret = ((int) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
 #endif
@@ -2112,9 +2117,9 @@ start_over: // when an opcode changed substantially in optimization, goto here t
 
             case FN_ADD:      RESTART_DIRECTVALUE(op->parms.parms[0]->parms.dv.directValue + op->parms.parms[1]->parms.dv.directValue);
             case FN_SUB:      RESTART_DIRECTVALUE(op->parms.parms[0]->parms.dv.directValue - op->parms.parms[1]->parms.dv.directValue);
-            case FN_AND:      RESTART_DIRECTVALUE((double) (((WDL_INT64)op->parms.parms[0]->parms.dv.directValue) & ((WDL_INT64)op->parms.parms[1]->parms.dv.directValue)));
-            case FN_OR:       RESTART_DIRECTVALUE((double) (((WDL_INT64)op->parms.parms[0]->parms.dv.directValue) | ((WDL_INT64)op->parms.parms[1]->parms.dv.directValue)));
-            case FN_XOR:      RESTART_DIRECTVALUE((double) (((WDL_INT64)op->parms.parms[0]->parms.dv.directValue) ^ ((WDL_INT64)op->parms.parms[1]->parms.dv.directValue)));
+            case FN_AND:      RESTART_DIRECTVALUE((double) (((int64_t)op->parms.parms[0]->parms.dv.directValue) & ((int64_t)op->parms.parms[1]->parms.dv.directValue)));
+            case FN_OR:       RESTART_DIRECTVALUE((double) (((int64_t)op->parms.parms[0]->parms.dv.directValue) | ((int64_t)op->parms.parms[1]->parms.dv.directValue)));
+            case FN_XOR:      RESTART_DIRECTVALUE((double) (((int64_t)op->parms.parms[0]->parms.dv.directValue) ^ ((int64_t)op->parms.parms[1]->parms.dv.directValue)));
 
             case FN_EQ:       reval = fabs(op->parms.parms[0]->parms.dv.directValue - op->parms.parms[1]->parms.dv.directValue) < NSEEL_CLOSEFACTOR; break;
             case FN_NE:       reval = fabs(op->parms.parms[0]->parms.dv.directValue - op->parms.parms[1]->parms.dv.directValue) >= NSEEL_CLOSEFACTOR; break;
@@ -2137,7 +2142,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
           {
             case FN_OR:
             case FN_XOR:
-              if (!(WDL_INT64)dvalue)
+              if (!(int64_t)dvalue)
               {
                 // replace with or0
                 op->opcodeType = OPCODETYPE_FUNC1;
@@ -2169,7 +2174,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
               }
             break;
             case FN_AND:
-              if ((WDL_INT64)dvalue) break;
+              if ((int64_t)dvalue) break;
               dvalue = 0.0; // treat x&0 as x*0, which optimizes to 0
             
               WDL_FALLTHROUGH; // fall through
@@ -2294,12 +2299,12 @@ start_over: // when an opcode changed substantially in optimization, goto here t
                   else
                   {
                     double d = 1.0/dvalue;
-                    WDL_UINT64 w;
+                    uint64_t w;
                     memcpy(&w,&d,sizeof(d));
                     // allow conversion to multiply if reciprocal is exact
                     // we could also just look to see if the last few digits of the mantissa were 0, which would probably be good
                     // enough, but if the user really wants it they should do * (1/x) instead to force precalculation of reciprocal.
-                    if (!(w & WDL_UINT64_CONST(0xfffffffffffff)))
+                    if (!(w & 0xfffffffffffffui64))
                     {
                       op->fntype = FN_MULTIPLY;
                       op->parms.parms[1]->parms.dv.directValue = d;
@@ -5287,8 +5292,8 @@ NSEEL_VMCTX NSEEL_VM_alloc() // return a handle
   {
     ctx->ram_state = __newBlock_align(&ctx->ctx_pblocks,sizeof(*ctx->ram_state),16,0);
     memset(ctx->ram_state,0,sizeof(*ctx->ram_state));
-    ctx->ram_state->sign_mask[0] = ctx->ram_state->sign_mask[1] = WDL_UINT64_CONST(0x8000000000000000);
-    ctx->ram_state->abs_mask[0] = ctx->ram_state->abs_mask[1]   = WDL_UINT64_CONST(0x7FFFFFFFFFFFFFFF);
+    ctx->ram_state->sign_mask[0] = ctx->ram_state->sign_mask[1] = 0x8000000000000000ui64;
+    ctx->ram_state->abs_mask[0] = ctx->ram_state->abs_mask[1]   = 0x7FFFFFFFFFFFFFFFui64;
     ctx->ram_state->maxblocks = NSEEL_RAM_BLOCKS_DEFAULTMAX;
     ctx->ram_state->closefact = NSEEL_CLOSEFACTOR;
   }
@@ -5730,7 +5735,7 @@ opcodeRec *nseel_translate(compileContext *ctx, const char *tmp, size_t tmplen) 
       char *p=(char*)tmp+2;
       unsigned int v=(unsigned int) strtoul(tmp+2,&p,10);
       if (v>53) v=53;
-      return nseel_createCompiledValue(ctx,(EEL_F)((((WDL_INT64)1) << v) - 1));
+      return nseel_createCompiledValue(ctx,(EEL_F)((((int64_t)1) << v) - 1));
     }
     else if (!tmplen ? !stricmp(tmp,"$E") : (tmplen == 2 && !strnicmp(tmp,"$E",2)))
       return nseel_createCompiledValue(ctx,(EEL_F)2.718281828459045);

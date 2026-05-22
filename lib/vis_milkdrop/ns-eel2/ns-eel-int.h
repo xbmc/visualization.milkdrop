@@ -30,13 +30,91 @@
 #include "../wdltypes.h"
 #endif
 
+#include <stdint.h>
+
 #include "ns-eel.h"
 #include "ns-eel-addfuncs.h"
+
+#ifndef wdl_max
+#define wdl_max(x, y) ((x) < (y) ? (y) : (x))
+#define wdl_min(x, y) ((x) < (y) ? (x) : (y))
+#define wdl_abs(x) ((x) < 0 ? -(x) : (x))
+#define wdl_clamp(x, minv, maxv) \
+  (WDL_NOT_NORMALLY((maxv) < (minv)) || (x) < (minv) ? (minv) : ((x) > (maxv) ? (maxv) : (x)))
+#endif
+
+#define WDL_likely(x) (!!(x))
+#define WDL_unlikely(x) (!!(x))
+
+#define WDL_ASSERT(x)
+#define WDL_NORMALLY(x) WDL_likely(x)
+#define WDL_NOT_NORMALLY(x) WDL_unlikely(x)
+
+#ifndef WDL_FALLTHROUGH
+#define WDL_FALLTHROUGH \
+  do \
+  { \
+  } while (0)
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+static __inline unsigned int WDL_DENORMAL_DOUBLE_HW(const double* a)
+  {
+    uint64_t v;
+    memcpy(&v, (char*)a, sizeof(v));
+    return (unsigned int)(v >> 32);
+  }
+
+static double __inline denormal_filter_double2(double a)
+  {
+  return ((WDL_DENORMAL_DOUBLE_HW(&a)+0x100000)&0x7ff00000) > 0x100000 ? a : 0.0;
+}
+
+static void lstrcatn(char *o, const char *in, INT_PTR count)
+{
+  if (count>0)
+  {
+    while (*o) { if (--count < 1) return; o++; }
+    while (--count>0 && *in) *o++ = *in++;
+    *o=0;
+  }
+}
+
+static void snprintf_append(char *o, INT_PTR count, const char *format, ...)
+{
+  if (count>0)
+  {
+    va_list va;
+    while (*o) { if (--count < 1) return; o++; }
+    va_start(va,format);
+    vsnprintf(o,count,format,va);
+    va_end(va);
+  }
+}
+
+static void lstrcpyn_safe(char* o, const char* in, INT_PTR count)
+{
+  if (count>0)
+  {
+    while (--count>0 && *in) *o++ = *in++;
+    *o=0;
+  }
+}
+
+// avoid UB when these functions are passed signed char, etc
+static int toupper_safe(int v) { return v >= 0 && v < 256 ? toupper(v) : v; }
+static int tolower_safe(int v) { return v >= 0 && v < 256 ? tolower(v) : v; }
+static int isalpha_safe(int v) { return v >= 0 && v < 256 && isalpha(v); }
+static int isalnum_safe(int v) { return v >= 0 && v < 256 && isalnum(v); }
+static int isupper_safe(int v) { return v >= 0 && v < 256 && isupper(v); }
+static int islower_safe(int v) { return v >= 0 && v < 256 && islower(v); }
+static int isspace_safe(int v) { return v >= 0 && v < 256 && isspace(v); }
+static int isgraph_safe(int v) { return v >= 0 && v < 256 && isgraph(v); }
+static int isdigit_safe(int v) { return v >= 0 && v < 256 && isdigit(v); }
+static int isprint_safe(int v) { return v >= 0 && v < 256 && isprint(v); }
 
 enum { 
 
@@ -234,8 +312,8 @@ typedef struct _compileContext
   
   struct
   {
-    WDL_UINT64 sign_mask[2];
-    WDL_UINT64 abs_mask[2];
+    uint64_t sign_mask[2];
+    uint64_t abs_mask[2];
     int needfree;
     int maxblocks;
     double closefact;

@@ -33,9 +33,13 @@
 #define EEL_F_SIZE 8
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include "../wdltypes.h"
+#endif
 
-typedef double EEL_F WDL_FIXALIGN;
+typedef double EEL_F;
 typedef double *EEL_F_PTR;
 
 #ifdef _MSC_VER

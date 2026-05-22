@@ -25,8 +25,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "ns-eel-int.h"
-#include "../wdlcstring.h"
-
 
 static const char *nseel_skip_space_and_comments(const char *p, const char *endptr)
 {

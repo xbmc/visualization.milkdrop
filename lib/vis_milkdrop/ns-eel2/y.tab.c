@@ -1278,7 +1278,7 @@ yyparse (context)
 int yychar;
 
 /* The semantic value of the look-ahead symbol.  */
-YYSTYPE yylval;
+YYSTYPE yylval = NULL;
 
 /* Number of syntax errors so far.  */
 int yynerrs;
