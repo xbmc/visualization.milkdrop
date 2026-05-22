@@ -48,3 +48,6 @@ obj-x86_64-linux-gnu/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# prevent Windows generated shader files to add
+*.inc

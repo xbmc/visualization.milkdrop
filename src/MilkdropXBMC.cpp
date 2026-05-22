@@ -1,15 +1,17 @@
 /*
- *  Copyright (C) 2004-2021 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2004-2026 Team Kodi (https://kodi.tv)
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  *  See LICENSE.md for more information.
  */
 
 #include "vis_milkdrop/plugin.h"
-#include <kodi/addon-instance/Visualization.h>
+
 #include <string>
-#include <direct.h>
+
 #include <d3d11.h>
+#include <direct.h>
+#include <kodi/addon-instance/Visualization.h>
 
 CPlugin* g_plugin = nullptr;
 
@@ -18,7 +20,8 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
   if (from.empty())
     return;
   size_t start_pos = 0;
-  while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+  while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+  {
     str.replace(start_pos, from.length(), to);
     start_pos += to.length();
   }
@@ -30,30 +33,29 @@ void urlEscape(std::string& str)
     return;
 
   // 'url encode';
-  replaceAll(str, "%",  "%25");
+  replaceAll(str, "%", "%25");
   replaceAll(str, "\\", "%2F");
   replaceAll(str, "\"", "%22");
-  replaceAll(str, ":",  "%3A");
-  replaceAll(str, "`",  "%60");
-  replaceAll(str, "&",  "%26");
-  replaceAll(str, "{",  "%7B");
-  replaceAll(str, "}",  "%7D");
-  replaceAll(str, "]",  "%5D");
-  replaceAll(str, "[",  "%5B");
-  replaceAll(str, "<",  "%3C");
-  replaceAll(str, ">",  "%3E");
-  replaceAll(str, "#",  "%23");
+  replaceAll(str, ":", "%3A");
+  replaceAll(str, "`", "%60");
+  replaceAll(str, "&", "%26");
+  replaceAll(str, "{", "%7B");
+  replaceAll(str, "}", "%7D");
+  replaceAll(str, "]", "%5D");
+  replaceAll(str, "[", "%5B");
+  replaceAll(str, "<", "%3C");
+  replaceAll(str, ">", "%3E");
+  replaceAll(str, "#", "%23");
 }
 
-class ATTR_DLL_LOCAL CVisualizationMilkdrop
-  : public kodi::addon::CAddonBase
-  , public kodi::addon::CInstanceVisualization
+class ATTR_DLL_LOCAL CVisualizationMilkdrop : public kodi::addon::CAddonBase,
+                                              public kodi::addon::CInstanceVisualization
 {
 public:
-  ~CVisualizationMilkdrop() override;
+  ~CVisualizationMilkdrop() override = default;
 
-  ADDON_STATUS Create() override;
-  void Stop() override;
+  bool Init() override;
+  void DeInit() override;
   void Render() override;
   bool GetPresets(std::vector<std::string>& presets) override;
   int GetActivePreset() override;
@@ -64,10 +66,11 @@ public:
   bool RandomPreset() override;
   bool LockPreset(bool lockUnlock) override;
   void AudioData(const float* audioData, size_t audioDataLength) override;
-  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue) override;
+  ADDON_STATUS SetSetting(const std::string& settingName,
+                          const kodi::addon::CSettingValue& settingValue) override;
 
 private:
-  void SetPresetDir(const char *pack);
+  void SetPresetDir(const char* pack);
 
   bool m_UserPackFolder;
   std::string m_presetsDir;
@@ -77,7 +80,7 @@ private:
 };
 
 // Sets a new preset file or directory and make it active. Also recovers last state of the preset if it is the same as last time
-void CVisualizationMilkdrop::SetPresetDir(const char *pack)
+void CVisualizationMilkdrop::SetPresetDir(const char* pack)
 {
   int len = strlen(pack);
   if (len >= 4 && strcmp(pack + len - 4, ".zip") == 0)
@@ -97,16 +100,16 @@ void CVisualizationMilkdrop::SetPresetDir(const char *pack)
   else
   {
     // Normal folder
-    strcpy(g_plugin->m_szPresetDir,  pack);
+    strcpy(g_plugin->m_szPresetDir, pack);
   }
-  if (strcmp (g_plugin->m_szPresetDir, m_lastPresetDir.c_str()) == 0)
+  if (strcmp(g_plugin->m_szPresetDir, m_lastPresetDir.c_str()) == 0)
   {
     // If we have a valid last preset state AND the preset file(dir) is the same as last time
     g_plugin->UpdatePresetList();
     if (g_plugin->m_pPresetAddr)
     {
       g_plugin->m_bHoldPreset = m_lastLockedStatus;
-      if (m_lastPresetIndx < 0 || m_lastPresetIndx >(g_plugin->m_nPresets - g_plugin->m_nDirs))
+      if (m_lastPresetIndx < 0 || m_lastPresetIndx > (g_plugin->m_nPresets - g_plugin->m_nDirs))
         m_lastPresetIndx = 0;
       g_plugin->m_nCurrentPreset = m_lastPresetIndx;
       strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);
@@ -123,7 +126,7 @@ void CVisualizationMilkdrop::SetPresetDir(const char *pack)
 // Called on load. Addon should fully initalize or return error status
 // !!! Add-on master function !!!
 //-----------------------------------------------------------------------------
-ADDON_STATUS CVisualizationMilkdrop::Create()
+bool CVisualizationMilkdrop::Init()
 {
   _mkdir(kodi::addon::GetUserPath().c_str());
 
@@ -141,7 +144,8 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
   g_plugin->m_fTimeBetweenPresets = kodi::addon::GetSettingFloat("Time Between Presets");
   g_plugin->m_fTimeBetweenPresetsRand = kodi::addon::GetSettingFloat("Additional Random Time");
   g_plugin->m_bHardCutsDisabled = !kodi::addon::GetSettingBoolean("Enable Hard Cuts");
-  g_plugin->m_fHardCutLoudnessThresh = kodi::addon::GetSettingFloat("Loudness Threshold For Hard Cuts");
+  g_plugin->m_fHardCutLoudnessThresh =
+      kodi::addon::GetSettingFloat("Loudness Threshold For Hard Cuts");
   g_plugin->m_fHardCutHalflife = kodi::addon::GetSettingFloat("Average Time Between Hard Cuts");
   g_plugin->m_max_fps_fs = kodi::addon::GetSettingFloat("Maximum Refresh Rate");
   g_plugin->m_bAlways3D = kodi::addon::GetSettingBoolean("Enable Stereo 3d");
@@ -167,15 +171,19 @@ ADDON_STATUS CVisualizationMilkdrop::Create()
       break;
   }
 
-  if (!g_plugin || !g_plugin->PluginInitialize(static_cast<ID3D11DeviceContext*>(Device()), X(), Y(), Width(), Height(), PixelRatio()))
-    return ADDON_STATUS_UNKNOWN;
+  if (!g_plugin || !g_plugin->PluginInitialize(static_cast<ID3D11DeviceContext*>(Device()), X(),
+                                               Y(), Width(), Height(), PixelRatio()))
+  {
+    kodi::Log(ADDON_LOG_ERROR, "Failed to initialize Milkdrop");
+    return false;
+  }
 
-  return ADDON_STATUS_OK;
+  return true;
 }
 
-void CVisualizationMilkdrop::Stop()
+void CVisualizationMilkdrop::DeInit()
 {
-  if(g_plugin)
+  if (g_plugin)
   {
     kodi::addon::SetSettingString("lastpresetfolder", g_plugin->m_szPresetDir);
     kodi::addon::SetSettingBoolean("lastlockedstatus", g_plugin->m_bHoldPreset);
@@ -194,15 +202,16 @@ unsigned char waves[2][512];
 //-----------------------------------------------------------------------------
 void CVisualizationMilkdrop::AudioData(const float* pAudioData, size_t iAudioDataLength)
 {
-  int ipos=0;
+  int ipos = 0;
   while (ipos < 512)
   {
-    for (int i=0; i < iAudioDataLength; i+=2)
+    for (int i = 0; i < iAudioDataLength; i += 2)
     {
-      waves[0][ipos] = char (pAudioData[i] * 255.0f);
-      waves[1][ipos] = char (pAudioData[i+1]  * 255.0f);
+      waves[0][ipos] = char(pAudioData[i] * 255.0f);
+      waves[1][ipos] = char(pAudioData[i + 1] * 255.0f);
       ipos++;
-      if (ipos >= 512) break;
+      if (ipos >= 512)
+        break;
     }
   }
 }
@@ -210,7 +219,6 @@ void CVisualizationMilkdrop::AudioData(const float* pAudioData, size_t iAudioDat
 void CVisualizationMilkdrop::Render()
 {
   g_plugin->PluginRender(waves[0], waves[1]);
-
 }
 
 bool CVisualizationMilkdrop::NextPreset()
@@ -228,7 +236,8 @@ bool CVisualizationMilkdrop::PrevPreset()
 bool CVisualizationMilkdrop::LoadPreset(int select)
 {
   g_plugin->m_nCurrentPreset = select;
-  strcpy(g_plugin->m_szCurrentPresetFile, g_plugin->m_szPresetDir);  // note: m_szPresetDir always ends with '\'
+  strcpy(g_plugin->m_szCurrentPresetFile,
+         g_plugin->m_szPresetDir); // note: m_szPresetDir always ends with '\'
   strcat(g_plugin->m_szCurrentPresetFile, g_plugin->m_pPresetAddr[g_plugin->m_nCurrentPreset]);
   g_plugin->LoadPreset(g_plugin->m_szCurrentPresetFile, g_plugin->m_fBlendTimeUser);
   return true;
@@ -273,25 +282,17 @@ int CVisualizationMilkdrop::GetActivePreset()
 //-----------------------------------------------------------------------------
 bool CVisualizationMilkdrop::IsLocked()
 {
-  if(g_plugin)
+  if (g_plugin)
     return g_plugin->m_bHoldPreset;
   else
     return false;
 }
 
-//-- Destroy-------------------------------------------------------------------
-// Do everything before unload of this add-on
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-CVisualizationMilkdrop::~CVisualizationMilkdrop()
-{
-  Stop();
-}
-
 //-- UpdateSetting ------------------------------------------------------------
 // Handle setting change request from XBMC
 //-----------------------------------------------------------------------------
-ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue)
+ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName,
+                                                const kodi::addon::CSettingValue& settingValue)
 {
   if (settingName.empty() || settingValue.empty() || !g_plugin)
     return ADDON_STATUS_UNKNOWN;
@@ -323,14 +324,15 @@ ADDON_STATUS CVisualizationMilkdrop::SetSetting(const std::string& settingName, 
   else if (settingName == "Preset Pack")
   {
     if (settingValue.GetInt() == 0)
-      {
-      m_UserPackFolder = false;;
-      SetPresetDir ("WA51-presets(265).zip");
-      }
+    {
+      m_UserPackFolder = false;
+      ;
+      SetPresetDir("WA51-presets(265).zip");
+    }
     else if (settingValue.GetInt() == 1)
     {
       m_UserPackFolder = false;
-      SetPresetDir ("Winamp-presets(436).zip");
+      SetPresetDir("Winamp-presets(436).zip");
     }
     else if (settingValue.GetInt() == 2)
       m_UserPackFolder = true;
