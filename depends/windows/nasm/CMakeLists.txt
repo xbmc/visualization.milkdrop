@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
-project(nasmw)
+cmake_minimum_required(VERSION 3.18)
+
+project(nasm)
 
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

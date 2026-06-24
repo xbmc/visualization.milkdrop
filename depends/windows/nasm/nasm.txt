@@ -1,0 +1,1 @@
+nasm https://mirrors.kodi.tv/build-deps/win32/nasm-3.01-win64.zip
